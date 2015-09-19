@@ -1,13 +1,21 @@
 import os
 import json
+from websocket import handle_websocket
 from flask import Flask, request, Response
 from flask import render_template, send_from_directory, url_for
 
 app = Flask(__name__)
-
 app.config.from_object('angular_flask.settings')
-
 app.url_map.strict_slashes = False
+
+def my_app(environ, start_response):  
+    path = environ["PATH_INFO"]  
+    if path == "/":  
+        return app(environ, start_response)  
+    elif path == "/websocket":  
+        handle_websocket(environ["wsgi.websocket"])   
+    else:  
+        return app(environ, start_response)  
 
 import angular_flask.core
 import angular_flask.models

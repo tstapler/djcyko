@@ -1,9 +1,13 @@
 import os
 
+from geventwebsocket.handler import WebSocketHandler
+from gevent.pywsgi import WSGIServer
+from flask import Flask, request, render_template
+from websocket import handle_websocket
+
 from flask import Flask, request, Response
 from flask import render_template, url_for, redirect, send_from_directory
 from flask import send_file, make_response, abort
-
 from angular_flask import app
 
 # routing for API endpoints, generated from the models designated as API_MODELS
@@ -16,6 +20,13 @@ for model_name in app.config['API_MODELS']:
 
 session = api_manager.session
 
+@app.route('/sockets', methods=['GET', 'POST'])
+def sockets():
+    return render_template('sockets.html')
+
+@app.route('/websocket', methods=['GET', 'POST'])
+def websocket():
+    return ''
 
 # routing for basic pages (pass routing onto the Angular app)
 @app.route('/')
@@ -24,7 +35,6 @@ session = api_manager.session
 @app.route('/songs')
 def basic_pages(**kwargs):
     return make_response(open('angular_flask/templates/index.html').read())
-
 
 # routing for CRUD-style endpoints
 # passes routing onto the angular frontend if the requested resource exists
@@ -55,4 +65,5 @@ def favicon():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
 
