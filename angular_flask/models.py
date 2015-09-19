@@ -27,11 +27,14 @@ class Song(db.Model):
     votes = db.Column(db.Integer)
     playing = db.Column(db.Boolean)
 
-    def __init__(self, title, url, votes):
+    def __init__(self, title, url, votes, playing):
         self.title = title
         self.url = url
         self.votes = votes
-        self.playing = False
+        if(playing is None):
+            self.playing = False
+        else:
+            self.playing = playing
 
     def __repr__(self):
         return '<Song %r>' % self.title
