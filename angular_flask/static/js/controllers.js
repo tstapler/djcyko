@@ -34,7 +34,6 @@ function SongDetailController($scope, $routeParams, Song) {
         $scope.convert = function(url){
 
             var video_id = url.split('v=')[1];
-            alert(video_id);
             try {
                 var ampersandPosition = video_id.indexOf('&');
             }
@@ -45,7 +44,6 @@ function SongDetailController($scope, $routeParams, Song) {
                   video_id = video_id.substring(0, ampersandPosition);
             }
 
-            alert(video_id);
             return "http://youtube.com/embed/" + video_id
         }
 	});
