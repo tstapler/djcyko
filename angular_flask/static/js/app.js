@@ -12,18 +12,18 @@ angular.module('AngularFlask', ['angularFlaskServices'])
 			templateUrl: 'static/partials/about.html',
 			controller: AboutController
 		})
-		.when('/post', {
-			templateUrl: 'static/partials/post-list.html',
-			controller: PostListController
+		.when('/song', {
+			templateUrl: 'static/partials/song-list.html',
+			controller: SongListController
 		})
-		.when('/post/:postId', {
-			templateUrl: '/static/partials/post-detail.html',
-			controller: PostDetailController
+		.when('/song/:songId', {
+			templateUrl: '/static/partials/song-detail.html',
+			controller: SongDetailController
 		})
-		/* Create a "/blog" route that takes the user to the same place as "/post" */
-		.when('/blog', {
-			templateUrl: 'static/partials/post-list.html',
-			controller: PostListController
+		/* Create a "/blog" route that takes the user to the same place as "/song" */
+		.when('/songs', {
+			templateUrl: 'static/partials/song-list.html',
+			controller: SongListController
 		})
 		.otherwise({
 			redirectTo: '/'
