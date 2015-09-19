@@ -48,3 +48,27 @@ function SongDetailController($scope, $routeParams, Song) {
         }
 	});
 }
+
+function QueueListController($scope, Queue){
+    var queueQuery =Queue.get ({},function(queues){
+        $scope.queues = queues.objects;
+    });
+}
+
+function QueueDetailController($scope, $routeParams, Queue) {
+    var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
+        $scope.queue = queue;
+    });
+}
+
+function QueueDJController($scope, $routeParams, Queue){
+    var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
+        $scope.queue = queue;
+    });
+}
+
+function QueueClientController($scope, $routeParams, Queue){
+    var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
+        $scope.queue = queue;
+    });
+}

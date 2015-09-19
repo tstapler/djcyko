@@ -1,0 +1,4 @@
+<div ng-repeat="queue in queues | orderBy: 'id':true ">
+	<h4><a href="/queue/{{ queue }}">{{ queue.title }}</a></h4>
+</div>
+
