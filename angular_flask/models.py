@@ -20,17 +20,26 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post %r>' % self.title
 
+class Queue(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String())
+    songs = db.relationship('Song', backref='queue', lazy='dynamic')
+    def __init__(self, title):
+        self.title = title
+
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), unique=True)
     url = db.Column(db.String(200))
     votes = db.Column(db.Integer)
     playing = db.Column(db.Boolean)
+    queue_id = db.Column(db.Integer, db.ForeignKey('queue.id'))
 
-    def __init__(self, title, url, votes, playing):
+    def __init__(self, title, url, votes, playing, queue_id):
         self.title = title
         self.url = url
         self.votes = votes
+        self.queue_id = queue_id
         if(playing is None):
             self.playing = False
         else:
