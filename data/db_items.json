@@ -1,1 +1,2 @@
-{ "post": [{"body": "Welcome to my blog. I will be putting up posts about various topics, so make sure to check back soon.", "title": "My First Blog Post"}, {"body": "It is day two of my blogging efforts, and a lot has changed since I last wrote. Well, not really...", "title": "My Second Blog Post"}] }
+{ "song": [{"title": "Style", "url": "https://www.youtube.com/watch?v=-CmadmM5cOk", "votes":4, "playing": false},
+    { "title":"Love Story", "url": "https://www.youtube.com/watch?v=8xg3vE8Ie_E", "votes":3, "playing": false ] }
