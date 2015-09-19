@@ -1,0 +1,7 @@
+
+<div ng-repeat="song in songs | orderBy: 'id':true ">
+	<h4><a href="/song/{{ song.id }}">{{ song.title }}</a></h4>
+	<p>{{ song.url }}<p>
+    <p>{{ song.votes }}</p>
+    <p>{{ song.playing }}</p>
+</div>
