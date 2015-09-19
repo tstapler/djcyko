@@ -20,9 +20,37 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post %r>' % self.title
 
+class Song(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), unique=True)
+    url = db.Column(db.String(200))
+    votes = db.Column(db.Integer)
+    playing = db.Column(db.Boolean)
+
+    def __init__(self, title, url, votes):
+        self.title = title
+        self.url = url
+        self.votes = votes
+        self.playing = False
+
+    def __repr__(self):
+        return '<Song %r>' % self.title
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(), unique=True)
+    password = db.Column(db.String())
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 # models for which we want to create API endpoints
-app.config['API_MODELS'] = {'post': Post}
+app.config['API_MODELS'] = {'post': Post, 'song': Song, 'user': User}
 
 # models for which we want to create CRUD-style URL endpoints,
 # and pass the routing onto our AngularJS application
-app.config['CRUD_URL_MODELS'] = {'post': Post}
+app.config['CRUD_URL_MODELS'] = {'post': Post, 'song': Song, 'user': User}
