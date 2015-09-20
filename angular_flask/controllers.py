@@ -16,7 +16,7 @@ from angular_flask.models import *
 
 for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
-    api_manager.create_api(model_class, methods=['GET', 'POST'])
+    api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT'])
 
 session = api_manager.session
 
@@ -45,6 +45,8 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 
 @app.route('/<model_name>/')
 @app.route('/<model_name>/<item_id>')
+@app.route('/<model_name>/<item_id>/dj')
+@app.route('/<model_name>/<item_id>/client')
 def rest_pages(model_name, item_id=None):
     if model_name in crud_url_models:
         model_class = crud_url_models[model_name]
