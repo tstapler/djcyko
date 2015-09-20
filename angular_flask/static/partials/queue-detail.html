@@ -1,13 +1,15 @@
-<h2>{{ queue.title }}</h2>
-<pre>{{queue | json}}</pre>
+<h2>{{ "Queue - " + queue.title }}</h2>
 <br>
-<div ng-repeat="song in queue.songs | orderBy: 'id':true">
-    <div>
-        <h3>{{ song.title }}</h3>
-        <p>{{song.id}}</p>
-        <pre>{{song | json}}</pre>
-        <a href="/song/{{ song.id }}">{{ song.title }}</a>
+<ol>
+    <div ng-repeat="song in queue.songs | orderBy: 'id':true">
+        <div>
+            <li>
+            <a href="/song/{{ song.id }}">{{ song.title }}</a>
+            </li>
+        </div>
+        <br>
     </div>
-    <br>
-</div>
-<p><a href="/queue">back</a></p>
+</ol>
+<p><a href="/queue/{{ queue.id }}/client">Launch Client</a></p>
+<p><a href="/queue/{{ queue.id }}/dj">Launch DJ</a></p>
+<p><a href="/queue">Back to Queue List</a></p>

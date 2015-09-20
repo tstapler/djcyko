@@ -1,0 +1,16 @@
+<div>
+    <h1>Voting for {{ queue.title }}</h1>
+    <poll-alert show-alert="alert.showAlert" alert-class="alert.alertClass" alert-message="alert.msg"></poll-alert>
+    <form ng-submit="save()">
+        <ul class="list-group">
+            <li ng-repeat="song in queue.songs" class="list-group-item">
+            <input type="radio" id="option{{$index}}" ng-value="song.id" ng-click name="option" ng-model="queue.songId">
+            <label = for="option{{$index}}">{{ song.title }}</label>
+            </li>
+        </ul>
+            <a class="btn btn-danger" ng-href="/queue/{{queue.id}}/"><span class="glyphicon glyphicon-arrow-left"> Back</span></a>
+            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save">Save</span></button>
+        </form>
+    </div>
+
+</div>
