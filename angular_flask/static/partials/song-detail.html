@@ -1,5 +1,17 @@
-<h2>{{ song.title }}</h2>
+<link rel="stylesheet" href="/static/css/bootstrap.css">
+<link rel="stylesheet" href="/static/css/isu.css">
+<script src="/static/lib/jquery/jquery.min.js"></script>
+<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
+<div class="overlay">
+    <div class="container">
+        <div class="intro-text"> 
+            <div class="intro-heading">
+                {{ song.title }}
+            </div>
+        </div>
+    </div>
+</div>
 <iframe id="embed" width="640" height="360" ng-src="{{ convert(song.url)}}" frameborder="0" allowfullscreen></iframe>
-	<p><a href="/songs">Back to All Songs</a></p>
-    <p><a href="/queue/{{song.queue_id}}">Back to Queue</p>
+<p><a href="/songs">All Songs</a></p>
+<p><a href="/queue/{{song.queue_id}}">Back to Queue</p>
 </div>
