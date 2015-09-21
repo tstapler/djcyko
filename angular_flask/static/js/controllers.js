@@ -95,7 +95,7 @@ function QueueClientController($scope, $routeParams, Queue, Song){
      else {
     var newSong = new Song({title: this.queue.song_title, url: this.queue.song_url, votes: 0, playing: 1, queue_id: $routeParams.queueId})
     newSong.$save()
-
+    $scope.queue.$get({queueId: $routeParams.queueId})
      }
     }
 }
