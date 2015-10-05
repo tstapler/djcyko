@@ -1,3 +1,9 @@
+install:
+	sudo apt-get install python -y
+	sudo apt-get install python-dev -y
+	sudo easy_install pip
+	sudo pip install Flask
+	
 del:
 	python manage.py delete_db
 new:
