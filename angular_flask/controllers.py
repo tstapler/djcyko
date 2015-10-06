@@ -20,13 +20,9 @@ for model_name in app.config['API_MODELS']:
 
 session = api_manager.session
 
-@app.route('/sockets', methods=['GET', 'POST'])
-def sockets():
-    return render_template('sockets.html')
-
-@app.route('/websocket', methods=['GET', 'POST'])
-def websocket():
-    return ''
+@app.route('/client', methods=['GET', 'POST'])
+def client():
+    return render_template('client.html')
 
 # routing for basic pages (pass routing onto the Angular app)
 @app.route('/')
