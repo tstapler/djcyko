@@ -79,7 +79,7 @@ function QueueClientController($scope, $routeParams, Queue, Song){
             $scope.alert = {showAlert:true, msg: 'Select something please!', alertClass: 'warning'};
         }
          else {
-            this.queue.songs[this.queue.songId-1].votes += 1
+            this.queue.songs[this.queue.songId].votes += 1
             delete this.queue.songId
 
             this.queue.$save()
