@@ -71,7 +71,6 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 
 
 @app.route('/<model_name>/')
-@app.route('/<model_name>/<item_id>')
 @app.route('/<model_name>/<item_id>/dj')
 @app.route('/<model_name>/<item_id>/client')
 def rest_pages(model_name, item_id=None):
