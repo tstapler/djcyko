@@ -1,9 +1,8 @@
 import os
-
+import json
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from flask import Flask, request, render_template
-from websocket import handle_websocket
 
 from flask import Flask, request, Response
 from flask import render_template, url_for, redirect, send_from_directory
