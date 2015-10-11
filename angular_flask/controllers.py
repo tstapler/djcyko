@@ -20,6 +20,18 @@ for model_name in app.config['API_MODELS']:
 
 session = api_manager.session
 
+def handle_websocket(ws, url="" ):
+	index = 0
+	while True:
+		message = ws.receive()
+		if message is None:
+			break
+		else:
+			message = json.loads(message)
+	
+	songs = session.query(Song).all()	
+	print len(songs)
+
 @app.route('/client', methods=['GET', 'POST'])
 def client():
     return render_template('client.html')
