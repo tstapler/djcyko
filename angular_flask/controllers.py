@@ -22,14 +22,34 @@ session = api_manager.session
 def handle_websocket(ws, url="" ):
 	index = 0
 	while True:
+		f = open('ws.log', 'w')
 		message = ws.receive()
 		if message is None:
 			break
 		else:
 			message = json.loads(message)
-	
-	songs = session.query(Song).all()	
-	print len(songs)
+
+		songs = session.query(Song).all()
+		dictionary = dict()
+		for song in songs:
+			dictionary[song.votes] = song
+
+		maxVotes = 0
+		for votes in dictionary:
+			if votes > maxVotes:
+				maxVotes = votes
+		url = dictionary[maxVotes].url.partition('v=')[2][:11]			
+		f.write(url)
+		f.write('\n')
+		ws.send(json.dumps({'output':url}))
+		
+		toDelete = dictionary[maxVotes]
+		toDelete.votes = 0
+
+		session.add(toDelete)
+		session.flush()
+		
+		f.close()
 
 @app.route('/client', methods=['GET', 'POST'])
 def client():
