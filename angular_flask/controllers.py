@@ -7,12 +7,25 @@ from flask import Flask, request, render_template
 from flask import Flask, request, Response
 from flask import render_template, url_for, redirect, send_from_directory
 from flask import send_file, make_response, abort
+
+from flask import request, render_template
+from flask import request, Response
+from flask import render_template, url_for, send_from_directory
+from flask import make_response, abort
+from flask.ext.security import Security, login_required, SQLAlchemyUserDatastore
 from angular_flask import app
 
 # routing for API endpoints, generated from the models designated as API_MODELS
 from angular_flask.core import api_manager
 from angular_flask.models import *
 
+# models for which we want to create API endpoints
+app.config['API_MODELS'] = {'post': Post, 'song': Song, 'user': User, 'queue': Queue}
+
+# models for which we want to create CRUD-style URL endpoints,
+
+# and pass the routing onto our AngularJS application
+app.config['CRUD_URL_MODELS'] = {'post': Post, 'song': Song, 'user': User, 'queue': Queue}
 for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
     api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
@@ -27,9 +40,14 @@ def handle_websocket(ws, url="" ):
 			break
 		else:
 			message = json.loads(message)
-	
-	songs = session.query(Song).all()	
+
+	songs = session.query(Song).all()
 	print len(songs)
+
+#Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+
 
 @app.route('/client', methods=['GET', 'POST'])
 def client():
