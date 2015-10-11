@@ -74,6 +74,7 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 @app.route('/<model_name>/<item_id>/dj')
 @app.route('/<model_name>/<item_id>/client')
 def rest_pages(model_name, item_id=None):
+    session = api_manager.session
     if model_name in crud_url_models:
         model_class = crud_url_models[model_name]
         if item_id is None or session.query(exists().where(
