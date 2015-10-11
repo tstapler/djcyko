@@ -19,7 +19,7 @@ for model_name in app.config['API_MODELS']:
 
 session = api_manager.session
 
-def handle_websocket(ws, url="" ):
+def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
 	index = 0
 	while True:
 		f = open('ws.log', 'w')
