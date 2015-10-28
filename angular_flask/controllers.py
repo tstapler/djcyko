@@ -1,31 +1,27 @@
 import os
 import json
+
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
-from flask import Flask, request, Response
-from flask import render_template, url_for, redirect, send_from_directory
+from flask import request, Response
+from flask import url_for, redirect, send_from_directory
 from flask import send_file, make_response, abort
 
-from flask import request, render_template
-from flask import request, Response
-from flask import render_template, url_for, send_from_directory
+from flask import url_for, send_from_directory
 from flask import make_response, abort
-from flask.ext.security import Security, login_required, SQLAlchemyUserDatastore
+from flask.ext.bcrypt import Bcrypt
 from angular_flask import app
 
 # routing for API endpoints, generated from the models designated as API_MODELS
 from angular_flask.core import api_manager
 from angular_flask.models import *
 
+#Create hashing functionality
+bcrypt = Bcrypt(app)
+
 # models for which we want to create API endpoints
-app.config['API_MODELS'] = {'post': Post, 'song': Song, 'user': User, 'queue': Queue}
-
-# models for which we want to create CRUD-style URL endpoints,
-
-# and pass the routing onto our AngularJS application
-app.config['CRUD_URL_MODELS'] = {'post': Post, 'song': Song, 'user': User, 'queue': Queue}
 for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
     api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
@@ -33,21 +29,16 @@ for model_name in app.config['API_MODELS']:
 session = api_manager.session
 
 def handle_websocket(ws, url="" ):
-	index = 0
-	while True:
-		message = ws.receive()
-		if message is None:
-			break
-		else:
-			message = json.loads(message)
+    index = 0
+    while True:
+        message = ws.receive()
+        if message is None:
+            break
+        else:
+            message = json.loads(message)
 
-	songs = session.query(Song).all()
-	print len(songs)
-
-#Setup Flask-Security
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
-
+    songs = session.query(Song).all()
+    print len(songs)
 
 @app.route('/client', methods=['GET', 'POST'])
 def client():
@@ -81,6 +72,41 @@ def rest_pages(model_name, item_id=None):
                 'angular_flask/templates/index.html').read())
     abort(404)
 
+#Routes for user creation and authentication
+@app.route('/register', methods=['POST'])
+def register():
+    json_data = request.json
+    user = User(username=json_data['username'],
+                password=bcrypt.generate_password_hash(json_data['password'].encode('utf-8')))
+    #Check to see if the username already exists
+    if not session.query(User).filter(User.username==user.username).first():
+        session.add(user)
+        status = 'success'
+        session.commit()
+    else:
+        status = 'this user is already registered'
+    return jsonify({'result': status})
+
+@app.route('/login', methods=['POST'])
+def login():
+    json_data = request.json
+    user = User.query.filter_by(username=json_data['username']).first()
+    if user and bcrypt.check_password_hash(
+            user.password, json_data['password']):
+        user.active = True
+        status = 'success'
+        session.commit()
+    else:
+        status = 'login failure'
+    return jsonify({'result': status})
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    json_data = request.json
+    user = User.query.filter_by(username=json_data['username']).first()
+    user.active = False
+    session.commit()
+    return jsonify({'result': 'success'})
 
 # special file handlers and error handlers
 @app.route('/favicon.ico')
