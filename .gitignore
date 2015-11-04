@@ -5,3 +5,8 @@ venv
 ignore
 data/*.save
 *.log
+*.BASE.*
+*.BACKUP.*
+*.REMOTE.*
+*.LOCAL.*
+*.org
