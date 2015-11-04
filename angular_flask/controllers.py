@@ -38,17 +38,17 @@ def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
 		for votes in dictionary:
 			if votes > maxVotes:
 				maxVotes = votes
-		url = dictionary[maxVotes].url.partition('v=')[2][:11]			
+		url = dictionary[maxVotes].url.partition('v=')[2][:11]
 		f.write(url)
 		f.write('\n')
 		ws.send(json.dumps({'output':url}))
-		
+
 		toDelete = dictionary[maxVotes]
 		toDelete.votes = 0
 
 		session.add(toDelete)
 		session.flush()
-		
+
 		f.close()
 
 @app.route('/client', methods=['GET', 'POST'])
