@@ -3,7 +3,7 @@ import json
 
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, session
 
 from flask import request, Response
 from flask import url_for, redirect, send_from_directory
@@ -26,7 +26,7 @@ for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
     api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
 
-session = api_manager.session
+db_session = api_manager.session
 
 def handle_websocket(ws, url="" ):
     index = 0
@@ -37,7 +37,7 @@ def handle_websocket(ws, url="" ):
         else:
             message = json.loads(message)
 
-    songs = session.query(Song).all()
+    songs = db_session.query(Song).all()
     print len(songs)
 
 @app.route('/client', methods=['GET', 'POST'])
@@ -66,46 +66,49 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 def rest_pages(model_name, item_id=None):
     if model_name in crud_url_models:
         model_class = crud_url_models[model_name]
-        if item_id is None or session.query(exists().where(
+        if item_id is None or db_session.query(exists().where(
                 model_class.id == item_id)).scalar():
             return make_response(open(
                 'angular_flask/templates/index.html').read())
     abort(404)
 
 #Routes for user creation and authentication
-@app.route('/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register():
     json_data = request.json
     user = User(username=json_data['username'],
                 password=bcrypt.generate_password_hash(json_data['password'].encode('utf-8')))
     #Check to see if the username already exists
-    if not session.query(User).filter(User.username==user.username).first():
-        session.add(user)
+    if not db_session.query(User).filter(User.username==user.username).first():
+        db_session.add(user)
         status = 'success'
-        session.commit()
+        db_session.commit()
     else:
         status = 'this user is already registered'
     return jsonify({'result': status})
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     json_data = request.json
+    print(json_data['username'])
     user = User.query.filter_by(username=json_data['username']).first()
     if user and bcrypt.check_password_hash(
             user.password, json_data['password']):
+        session['logged_in'] = True
         user.active = True
-        status = 'success'
-        session.commit()
+        status = True
+        db_session.commit()
     else:
-        status = 'login failure'
+        status = False
     return jsonify({'result': status})
 
-@app.route('/logout', methods=['POST'])
+@app.route('/api/logout', methods=['POST'])
 def logout():
     json_data = request.json
     user = User.query.filter_by(username=json_data['username']).first()
     user.active = False
-    session.commit()
+    db_session.commit()
+    session.pop('logged_in', None)
     return jsonify({'result': 'success'})
 
 # special file handlers and error handlers
