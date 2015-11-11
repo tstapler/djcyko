@@ -5,7 +5,8 @@ install:
 	sudo easy_install pip
 	sudo pip install Flask
 	sudo pip install gevent-websocket
-	sudo pip install -r requirements.txt	
+	sudo pip install -r requirements.txt
+
 del:
 	sudo python manage.py delete_db
 
