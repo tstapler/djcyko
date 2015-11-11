@@ -110,15 +110,15 @@ function loginController($scope, $location, AuthService){
         $scope.disabled = true;
 
         // call login from service
-        AuthService.login($scope.loginForm.username, $scope.loginForm.password).
+        AuthService.login($scope.loginForm.username, $scope.loginForm.password)
         // handle success
-        then(function () {
+        .then(function () {
             $location.path('/');
             $scope.disabled = false;
             $scope.loginForm = {};
-        }).
+        })
         // handle error
-        catch(function () {
+        .catch(function () {
             $scope.error = true;
             $scope.errorMessage = "Invalid username and/or password";
             $scope.disabled = false;

@@ -1,55 +1,66 @@
 'use strict';
 
-angular.module('AngularFlask', ['angularFlaskServices'])
+var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices','ngRoute'])
 .config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider
             .when('/', {
                 templateUrl: '/static/partials/landing.html',
-                controller: IndexController
+                access: {restricted: false}
             })
             .when('/about', {
                 templateUrl: '/static/partials/about.html',
-                controller: AboutController
+                controller: AboutController,
+                access: {restricted: false}
             })
             .when('/song', {
                 templateUrl: '/static/partials/song-list.html',
-                controller: SongListController
+                controller: SongListController,
+                access: {restricted: true}
             })
             .when('/song/:songId', {
                 templateUrl: '/static/partials/song-detail.html',
-                controller: SongDetailController
+                controller: SongDetailController,
+                access: {restricted: true}
             })
             .when('/songs', {
                 templateUrl: '/static/partials/song-list.html',
-                controller: SongListController
+                controller: SongListController,
+                access: {restricted: true}
             })
             .when('/queue', {
                 templateUrl: '/static/partials/queue-list.html',
-                controller: QueueListController
+                controller: QueueListController,
+                access: {restricted: true}
             })
             .when('/queue/:queueId',{
                 templateUrl: '/static/partials/queue-detail.html',
-                controller: QueueDetailController
+                controller: QueueDetailController,
+                access: {restricted: true}
             })
             .when('/queue/:queueId/dj',{
                 templateUrl: '/static/partials/queue-dj.html',
-                controller: QueueDJController
+                controller: QueueDJController,
+                access: {restricted: true}
             })
             .when('/queue/:queueId/client', {
                 templateUrl: '/static/partials/queue-client.html',
-                controller: QueueClientController
+                controller: QueueClientController,
+                access: {restricted: true}
             })
             .when('/login', {
                 templateUrl: 'static/partials/login.html',
-                controller: loginController
+                controller: loginController,
+                access: {restricted: false}
             })
             .when('/logout', {
-                controller: logoutController
+                controller: logoutController,
+                access: {restricted: false}
             })
             .when('/register', {
-                templateUrl: 'static/partials/register.html'
-                , controller: registerController
+                templateUrl: 'static/partials/register.html',
+                controller: registerController,
+                access: {restricted: false}
             })
             .otherwise({
                 redirectTo: '/'
@@ -59,3 +70,11 @@ angular.module('AngularFlask', ['angularFlaskServices'])
             $locationProvider.html5Mode(true);
         }])
         ;
+        AngularFlask.run (function ($rootScope, $location, $route, AuthService) {
+            $rootScope.$on('$routeChangeStart', function (event, next, current){
+                if(next.access.restricted && AuthService.isLoggedIn() === false) {
+                    $location.path('/login');
+                    $route.reload();
+                }
+            });
+        });
