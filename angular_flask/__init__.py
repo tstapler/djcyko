@@ -17,6 +17,7 @@ def my_app(environ, start_response):
         return app(environ, start_response)
     elif path == "/websocket":
         angular_flask.controllers.handle_websocket(environ["wsgi.websocket"])
+        return DebuggedApplication(app)
     else:
         return app(environ, start_response)
 

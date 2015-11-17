@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="/static/css/bootstrap.css">
+<link rel="stylesheet" href="/static/css/bootstrap-responsive.css">
+<script src="/static/lib/jquery/jquery.min.js"></script>
+<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
+
+<div class="col-md-4">
+    <h1>Login</h2>
+    <div ng-show="error" class="alert alert-danger">{{errorMessage}}</div>
+    <form novalidate >
+            <label>Username</label>
+            <input type="text" class="form-control" name="username" ng-model="loginForm.username">
+            <label>Password</label>
+            <input type="password" class="form-control" name="password" ng-model="loginForm.password">
+            <button type="submit" class="btn btn-default" ng-click="login()">Login</button>
+    </form>
+</div>
