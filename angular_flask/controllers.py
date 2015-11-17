@@ -19,7 +19,7 @@ for model_name in app.config['API_MODELS']:
 
 session = api_manager.session
 
-def handle_websocket(ws, url="" ):
+def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
 	index = 0
 	while True:
 		f = open('ws.log', 'w')
@@ -38,17 +38,17 @@ def handle_websocket(ws, url="" ):
 		for votes in dictionary:
 			if votes > maxVotes:
 				maxVotes = votes
-		url = dictionary[maxVotes].url.partition('v=')[2][:11]			
+		url = dictionary[maxVotes].url.partition('v=')[2][:11]
 		f.write(url)
 		f.write('\n')
 		ws.send(json.dumps({'output':url}))
-		
+
 		toDelete = dictionary[maxVotes]
 		toDelete.votes = 0
 
 		session.add(toDelete)
 		session.flush()
-		
+
 		f.close()
 
 @app.route('/client', methods=['GET', 'POST'])
@@ -71,10 +71,10 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 
 
 @app.route('/<model_name>/')
-@app.route('/<model_name>/<item_id>')
 @app.route('/<model_name>/<item_id>/dj')
 @app.route('/<model_name>/<item_id>/client')
 def rest_pages(model_name, item_id=None):
+    session = api_manager.session
     if model_name in crud_url_models:
         model_class = crud_url_models[model_name]
         if item_id is None or session.query(exists().where(
