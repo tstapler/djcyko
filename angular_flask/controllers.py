@@ -28,39 +28,6 @@ for model_name in app.config['API_MODELS']:
 
 db_session = api_manager.session
 
-<<<<<<< HEAD
-def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
-	index = 0
-	while True:
-		f = open('ws.log', 'w')
-		message = ws.receive()
-		if message is None:
-			break
-		else:
-			message = json.loads(message)
-
-		songs = session.query(Song).all()
-		dictionary = dict()
-		for song in songs:
-			dictionary[song.votes] = song
-
-		maxVotes = 0
-		for votes in dictionary:
-			if votes > maxVotes:
-				maxVotes = votes
-		url = dictionary[maxVotes].url.partition('v=')[2][:11]
-		f.write(url)
-		f.write('\n')
-		ws.send(json.dumps({'output':url}))
-
-		toDelete = dictionary[maxVotes]
-		toDelete.votes = 0
-
-		session.add(toDelete)
-		session.flush()
-
-		f.close()
-=======
 def handle_websocket(ws, url="" ):
     index = 0
     while True:
@@ -92,7 +59,6 @@ def handle_websocket(ws, url="" ):
         db_session.flush()
 
         f.close()
->>>>>>> f39a292a6487970d8132f3bfb5bf5f8b58931d58
 
 @app.route('/client', methods=['GET', 'POST'])
 def client():
