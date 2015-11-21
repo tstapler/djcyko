@@ -1,11 +1,6 @@
-
-<link rel="stylesheet" href="/static/css/bootstrap.css">
-<link rel="stylesheet" href="/static/css/bootstrap-responsive.css">
-<script src="/static/lib/jquery/jquery.min.js"></script>
-<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
-    <ul class="list-group">
+<ul class="list-group">
 <div ng-repeat="song in songs | orderBy: 'id':true ">
-    <li class="list-group-item">
+<li class="list-group-item">
 	<h4><a href="/song/{{ song.id }}">{{ song.title }}</a></h4>
 	<p>{{ song.url }}<p>
     <p>{{ song.votes }}</p>
