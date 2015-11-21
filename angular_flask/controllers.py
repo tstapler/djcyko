@@ -110,15 +110,19 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     json_data = request.json
+    status = False
     print(json_data['username'])
-    user = User.query.filter_by(username=json_data['username']).first()
-    if user and bcrypt.check_password_hash(
-            user.password, json_data['password']):
-        session['logged_in'] = True
-        user.active = True
-        status = True
-        db_session.commit()
-    else:
+    try:
+        user = User.query.filter_by(username=json_data['username']).first()
+        if user and bcrypt.check_password_hash(
+                user.password, json_data['password']):
+            session['logged_in'] = True
+            user.active = True
+            status = True
+            db_session.commit()
+        else:
+            status = False
+    except:
         status = False
     return jsonify({'result': status})
 
