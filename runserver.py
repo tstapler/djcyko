@@ -2,16 +2,15 @@ import os
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from werkzeug.serving import run_with_reloader
-from angular_flask import app,my_app
+from socketio.server import SocketIOServer
+from angular_flask import app, socketio
+from gevent import monkey
 
-@run_with_reloader
 def runserver():
-    my_app.debug=True
-    http_server = WSGIServer(('',5000), my_app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
-    port = int(os.environ.get('PORT', 5000))
+    monkey.patch_all()
     app.debug = True
-    app.run(host='0.0.0.0', port=port)
+    socketio.run(app)
+    SocketIOServer(('',5000),app,resource="socket.io").serve_forever()
 
 if __name__ == '__main__':
     runserver()

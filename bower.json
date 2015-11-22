@@ -1,0 +1,30 @@
+{
+  "name": "djcyko",
+  "authors": [
+    "Tyler Stapler <tstapler@iastate.edu>"
+  ],
+  "description": "An automatic DJing application",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/ssrirama/djcyko",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-resource": "~1.4.7",
+    "angular-route": "~1.4.7",
+    "angular": "~1.4.7",
+    "bootstrap": "~3.3.5",
+    "ng-websocket": "~0.2.1",
+    "socket.io-client": "~0.9.10"
+  },
+  "resolutions": {
+    "angular": "1.4.8"
+  }
+}

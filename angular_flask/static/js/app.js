@@ -1,6 +1,6 @@
 'use strict';
 
-var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices','ngRoute'])
+var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices','ngRoute','ui.bootstrap','btford.socket-io'])
 .config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider

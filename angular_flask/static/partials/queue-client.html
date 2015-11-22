@@ -1,39 +1,37 @@
-<link rel="stylesheet" href="/static/css/bootstrap.css">
-<link rel="stylesheet" href="/static/css/bootstrap-responsive.css">
-<script src="/static/lib/jquery/jquery.min.js"></script>
-<script src="/static/lib/bootstrap/bootstrap.min.js"></script>
-<div>
-<h1>Voting for {{ queue.title }}</h1>
-<poll-alert show-alert="alert.showAlert" alert-class="alert.alertClass" alert-message="alert.msg"></poll-alert>
-<form ng-submit="save()">
-    <ul class="list-group">
-        <li ng-repeat="song in queue.songs" class="list-group-item">
-        <label for="option{{$index}}">{{ song.title }} - {{ song.votes }} votes</label>
-        <input type="radio" id="option{{$index}}" value={{$index}} ng-click name="option" ng-model="queue.songId">
-            </li>
-        </ul>
-            <a class="btn btn-danger" ng-href="/queue/"><span class="glyphicon glyphicon-arrow-left"> Back</span></a>
-            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save">Save</span></button>
+<h1>{{ queue.title }}</h1>
+
+
+<uib-tabset>
+    <uib-tab heading="Voting" class="tab-pane active">
+        <form ng-submit="vote()">
+            <h2>Voting</h2>
+            <div class="form">
+                <label class="control-label">Vote for your favorite song!</label>
+                <div class="radio" ng-repeat="song in queue.songs">
+                    <label for="option{{$index}}">
+                    <input type="radio" id="option{{$index}}" value={{$index}} ng-click name="option" ng-model="queue.songId">
+                     {{ song.title }} - {{ song.votes }} votes</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save">Vote!</span></button>
         </form>
-    </div>
-<<<<<<< HEAD
-
-	<br />
-
-=======
->>>>>>> f39a292a6487970d8132f3bfb5bf5f8b58931d58
-    <form ng-submit="vote()">
-        <h2>Song Request Form</h2>
-	<p></p>
-        <div class="form-group">
-        <label for="title">Enter the song's title:</label>
-        <input type="text" id=title ng-model="queue.song_title">
-        </div>
-        <div class="form-group">
-        <label for="url">Enter the Youtube link:</label>
-        <input type="text" id=url ng-model="queue.song_url">
-        </div>
-        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save">Vote</span></button>
-    </form>
-
-</div>
+    </uib-tab>
+    
+    <uib-tab heading="Song Submission" class="tab-pane">
+        <form ng-submit="submit()">
+            <h2>Song Request Form</h2>
+            <div class="form-group">
+                <label for="title" >Enter the song's title:</label>
+                <input type="text" id=title ng-model="queue.song_title" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="url">Enter the Youtube link:</label>
+                <input type="text" id=url class="form-control" ng-model="queue.song_url">
+            </div>
+            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-save">Submit</span></button>
+            </div>
+        </form>
+    </uib-tab>
+</uib-tabset>
+<hr>
+<a class="btn btn-danger" ng-href="/queue/"><span class="glyphicon glyphicon-arrow-left">Back to Queues</span></a>

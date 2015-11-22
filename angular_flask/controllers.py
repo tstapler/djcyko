@@ -8,15 +8,20 @@ from flask import Flask, request, render_template, jsonify, session
 from flask import request, Response
 from flask import url_for, redirect, send_from_directory
 from flask import send_file, make_response, abort
+from flask.ext.socketio import SocketIO, emit
 
 from flask import url_for, send_from_directory
-from flask import make_response, abort
+from flask import make_response
 from flask.ext.bcrypt import Bcrypt
-from angular_flask import app
+
+from angular_flask import app, socketio
 
 # routing for API endpoints, generated from the models designated as API_MODELS
 from angular_flask.core import api_manager
 from angular_flask.models import *
+
+import logging
+logging.basicConfig()
 
 #Create hashing functionality
 bcrypt = Bcrypt(app)
@@ -26,7 +31,17 @@ for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
     api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
 
+#Db session for making
 db_session = api_manager.session
+
+@socketio.on('vote', namespace='/client')
+def handle_voting(data):
+    if data["vote_for"]:
+        song = db_session.query(Song).filter(Song.id==data["vote_for"]).first
+        song.id = song.id + 1
+        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]})
+
+
 
 def handle_websocket(ws, url="" ):
     index = 0
@@ -83,7 +98,7 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 @app.route('/<model_name>/<item_id>/dj')
 @app.route('/<model_name>/<item_id>/client')
 def rest_pages(model_name, item_id=None):
-    session = api_manager.session
+    db_session = api_manager.session
     if model_name in crud_url_models:
         model_class = crud_url_models[model_name]
         if item_id is None or db_session.query(exists().where(
@@ -110,15 +125,19 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     json_data = request.json
+    status = False
     print(json_data['username'])
-    user = User.query.filter_by(username=json_data['username']).first()
-    if user and bcrypt.check_password_hash(
-            user.password, json_data['password']):
-        session['logged_in'] = True
-        user.active = True
-        status = True
-        db_session.commit()
-    else:
+    try:
+        user = User.query.filter_by(username=json_data['username']).first()
+        if user and bcrypt.check_password_hash(
+                user.password, json_data['password']):
+            session['logged_in'] = True
+            user.active = True
+            status = True
+            db_session.commit()
+        else:
+            status = False
+    except:
         status = False
     return jsonify({'result': status})
 
