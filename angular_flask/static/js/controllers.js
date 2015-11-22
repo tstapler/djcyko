@@ -67,27 +67,39 @@ function QueueDJController($scope, $routeParams, Queue){
             });
 }
 
-function QueueClientController($scope, $routeParams, Queue, Song){
+function QueueClientController($scope, $routeParams, socket, Queue, Song){
+    //New websocket control
+    socket.connect;
+    socket.on("vote", function(message) {
+        for(var song in message['updated']){
+            for(var exist_song in this.queue.songs){
+                if(exist_song.id == song['id']){
+                    this.queue.songs[exist_song].votes = song['votes'];
+                    this.queue.$save()
+                    return;
+                }
+            }
+        }
+    });
+    //Old http request based stuff
     var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
             $scope.queue = queue;
             });
     $scope.get_song = function(){
     $scope.model
     }
-    $scope.save = function () {
+
+    $scope.vote = function () {
         if(this.queue.songId === undefined) {
             $scope.alert = {showAlert:true, msg: 'Select something please!', alertClass: 'warning'};
         }
          else {
-            this.queue.songs[this.queue.songId].votes += 1
+            socket.emit('vote', {"vote_for": this.queue.songId})
             delete this.queue.songId
-
-            this.queue.$save()
-
         };
 
     };
-    $scope.vote = function() {
+    $scope.submit = function() {
      if(this.queue.song_title === undefined || this.queue.song_url === undefined)
      {
         alert("Please fill out both fields")

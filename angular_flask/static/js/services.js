@@ -42,6 +42,10 @@ angular.module('angularFlaskServices', ['ngResource'])
         });
     })
 
+    .factory('socket', function (socketFactory){
+        return socketFactory();
+    })
+
     .factory('AuthService', ['$q', '$timeout', '$http', function($q, $timeout, $http) {
         //create user variable
         var user = null;

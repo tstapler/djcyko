@@ -3,7 +3,7 @@
 
 <uib-tabset>
     <uib-tab heading="Voting" class="tab-pane active">
-        <form ng-submit="save()">
+        <form ng-submit="vote()">
             <h2>Voting</h2>
             <div class="form">
                 <label class="control-label">Vote for your favorite song!</label>
@@ -18,7 +18,7 @@
     </uib-tab>
     
     <uib-tab heading="Song Submission" class="tab-pane">
-        <form ng-submit="vote()">
+        <form ng-submit="submit()">
             <h2>Song Request Form</h2>
             <div class="form-group">
                 <label for="title" >Enter the song's title:</label>

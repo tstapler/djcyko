@@ -8,15 +8,20 @@ from flask import Flask, request, render_template, jsonify, session
 from flask import request, Response
 from flask import url_for, redirect, send_from_directory
 from flask import send_file, make_response, abort
+from flask.ext.socketio import SocketIO, emit
 
 from flask import url_for, send_from_directory
 from flask import make_response
 from flask.ext.bcrypt import Bcrypt
-from angular_flask import app
+
+from angular_flask import app, socketio
 
 # routing for API endpoints, generated from the models designated as API_MODELS
 from angular_flask.core import api_manager
 from angular_flask.models import *
+
+import logging
+logging.basicConfig()
 
 #Create hashing functionality
 bcrypt = Bcrypt(app)
@@ -26,39 +31,50 @@ for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
     api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
 
+#Db session for making
 db_session = api_manager.session
 
+
+@socketio.on('vote', namespace='/client')
+def handle_voting(data):
+    if data["vote_for"]:
+        song = db_session.query(Song).filter(Song.id==data["vote_for"]).first
+        song.id = song.id + 1
+        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]})
+
+
+
 def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
-	index = 0
-	while True:
-		f = open('ws.log', 'w')
-		message = ws.receive()
-		if message is None:
-			break
-		else:
-			message = json.loads(message)
+    index = 0
+    while True:
+        f = open('ws.log', 'w')
+        message = ws.receive()
+        if message is None:
+            break
+        else:
+            message = json.loads(message)
 
-		songs = session.query(Song).all()
-		dictionary = dict()
-		for song in songs:
-			dictionary[song.votes] = song
+        songs = db_session.query(Song).all()
+        dictionary = dict()
+        for song in songs:
+            dictionary[song.votes] = song
 
-		maxVotes = 0
-		for votes in dictionary:
-			if votes > maxVotes:
-				maxVotes = votes
-		url = dictionary[maxVotes].url.partition('v=')[2][:11]
-		f.write(url)
-		f.write('\n')
-		ws.send(json.dumps({'output':url}))
+        maxVotes = 0
+        for votes in dictionary:
+            if votes > maxVotes:
+                maxVotes = votes
+        url = dictionary[maxVotes].url.partition('v=')[2][:11]
+        f.write(url)
+        f.write('\n')
+        ws.send(json.dumps({'output':url}))
 
-		toDelete = dictionary[maxVotes]
-		toDelete.votes = 0
+        toDelete = dictionary[maxVotes]
+        toDelete.votes = 0
 
-		session.add(toDelete)
-		session.flush()
+        db_session.add(toDelete)
+        db_session.flush()
 
-		f.close()
+        f.close()
 
 @app.route('/client', methods=['GET', 'POST'])
 def client():
