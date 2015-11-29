@@ -1,11 +1,5 @@
 install:
-	sudo apt-get install python -y
-	sudo apt-get install python-dev -y
-	sudo apt-get install python-setuptools -y
-	sudo easy_install pip
-	sudo pip install Flask
-	sudo pip install gevent-websocket
-	sudo pip install -r requirements.txt
+	pip install -r requirements.txt
 
 del:
 	python manage.py delete_db
