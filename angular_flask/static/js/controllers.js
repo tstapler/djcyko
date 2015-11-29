@@ -71,11 +71,11 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song){
     //New websocket control
     socket.connect;
     socket.on("vote", function(message) {
-        for(var song in message['updated']){
-            for(var exist_song in this.queue.songs){
-                if(exist_song.id == song['id']){
-                    this.queue.songs[exist_song].votes = song['votes'];
-                    this.queue.$save()
+        var updated_songs = message['updated']
+        for(var song in updated_songs){
+            for(var exist_song in $scope.queue.songs){
+                if($scope.queue.songs[exist_song].id === updated_songs[song]['id']){
+                    $scope.queue.songs[exist_song].votes = updated_songs[song]['votes'];
                     return;
                 }
             }
@@ -94,7 +94,7 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song){
             $scope.alert = {showAlert:true, msg: 'Select something please!', alertClass: 'warning'};
         }
          else {
-            socket.emit('vote', {"vote_for": this.queue.songId})
+            socket.emit('vote', {"vote_for": $scope.queue.songs[this.queue.songId].id})
             delete this.queue.songId
         };
 

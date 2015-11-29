@@ -1,17 +1,12 @@
 import os
 import json
 
-from geventwebsocket.handler import WebSocketHandler
-from gevent.pywsgi import WSGIServer
-from flask import Flask, request, render_template, jsonify, session
+from flask import request, render_template, jsonify, session
 
-from flask import request, Response
-from flask import url_for, redirect, send_from_directory
-from flask import send_file, make_response, abort
-from flask.ext.socketio import SocketIO, emit
+from flask import send_from_directory
+from flask import make_response, abort
+from flask.ext.socketio import emit
 
-from flask import url_for, send_from_directory
-from flask import make_response
 from flask.ext.bcrypt import Bcrypt
 
 from angular_flask import app, socketio
@@ -20,8 +15,9 @@ from angular_flask import app, socketio
 from angular_flask.core import api_manager
 from angular_flask.models import *
 
+#Add logger to print to console
 import logging
-logging.basicConfig()
+logger = logging.basicConfig()
 
 #Create hashing functionality
 bcrypt = Bcrypt(app)
@@ -38,14 +34,19 @@ db_session = api_manager.session
 @socketio.on('vote', namespace='/client')
 def handle_voting(data):
     if data["vote_for"]:
-        song = db_session.query(Song).filter(Song.id==data["vote_for"]).first
-        song.id = song.id + 1
-        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]})
+        song = Song.query.filter(Song.id == int(data['vote_for'])).first()
+        if song :
+            song.votes = song.votes + 1
+            db_session.commit()
+            emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, broadcast=True)
+        else:
+            #TODO: Add Error Handling
+            print("song doesnt exist")
 
 
 
+#TODO: Rewrite video_client handler using socketio
 def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
-    index = 0
     while True:
         f = open('ws.log', 'w')
         message = ws.receive()
