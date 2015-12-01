@@ -2,10 +2,10 @@
 <hr>
 
 
-<youtube-video video-id="current_song" player-vars="playerVars" player="$scope.player"></youtube-video>
+<youtube-video video-id="current_song" player-vars="playerVars" player="player"></youtube-video>
 <div>
 <button ng-click="next()" class="btn"> Next Song </button>
-<button ng-click="stop()" class="btn"> Stop Song </button>
+<button ng-click="stop_start()" class="btn"> {{button_state}} </button>
 </div>
 <hr>
 

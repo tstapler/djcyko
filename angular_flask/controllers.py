@@ -57,7 +57,7 @@ def handle_voting(data):
 
 @socketio.on('player-control', namespace='/client')
 def handle_player_change(data):
-    if data["new"]:
+    if "new" in data:
         songs = Song.query.filter(Song.queue_id == int(data["queue"])).order_by(Song.votes).all()
         print(songs)
         dictionary = dict()
@@ -73,13 +73,15 @@ def handle_player_change(data):
         song.votes = 0
         db_session.commit()
         emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, room=song.queue_id)
-        return;
-    elif data["stop"]:
-        return;
-    elif data["start"]:
-        return;
-    elif data["seek"]:
-        return;
+        return
+    elif "stop" in data:
+        emit('player-change', {'action': 'stop'}, room=data['queue'])
+        return
+    elif "start" in data:
+        emit('player-change', {'action': 'start'}, room=data['queue'])
+        return
+    elif "seek" in data:
+        return
 
 #TODO: Rewrite video_client handler using socketio
 def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):

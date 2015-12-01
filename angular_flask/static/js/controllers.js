@@ -90,11 +90,13 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
     socket.on("player-change", function(message, player) {
         switch(message["action"]) {
             case "new":
-                $scope.current_song = youtubeEmbedUtils.getIdFromURL(message["url"]);
+                $scope.player.loadVideoById(youtubeEmbedUtils.getIdFromURL(message["url"]));
                 break;
             case "stop":
+                $scope.player.pauseVideo();
                 break;
             case "start":
+                $scope.player.playVideo();
                 break;
             case "seek":
                 break;
@@ -118,6 +120,22 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
     $scope.next = function() {
         socket.emit('player-control', {'new': 'True', 'queue': $scope.queue.id});
     };
+
+    /* Controls for the stop and start button */
+    $scope.button_state = "Stop Song"
+
+    $scope.stop_start = function() {
+
+        if($scope.button_state === "Stop Song")
+            {
+         socket.emit('player-control', {'stop': 'True', 'queue':$scope.queue.id});
+            $scope.button_state = "Start Video";
+            }
+            else{
+         socket.emit('player-control', {'start': 'True', 'queue':$scope.queue.id});
+            $scope.button_state = "Stop Song";
+            }
+    }
 
     /* Submit a vote on the vote event */
     $scope.vote = function () {
