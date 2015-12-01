@@ -67,9 +67,41 @@ function QueueDJController($scope, $routeParams, Queue){
             });
 }
 
-function QueueClientController($scope, $routeParams, socket, Queue, Song){
-    //New websocket control
+function QueueClientController($scope, $routeParams, socket, Queue, Song, youtubeEmbedUtils){
+    //The Video id of the current song
+    $scope.current_song = "xjB7J9dOtSM"
+    $scope.player;
+
+    //The control parameters for the youtube player
+    $scope.playerVars = {
+        controls: 0,
+        autoplay: 1
+
+    };
+
+    //Begin Websocket Connection
     socket.connect;
+
+    socket.on("connect", function(){
+        socket.emit('join',{"queue": $scope.queue.id});
+    });
+
+    /* Control signals for the youtube player */
+    socket.on("player-change", function(message, player) {
+        switch(message["action"]) {
+            case "new":
+                $scope.current_song = youtubeEmbedUtils.getIdFromURL(message["url"]);
+                break;
+            case "stop":
+                break;
+            case "start":
+                break;
+            case "seek":
+                break;
+        }
+    });
+
+    /* Voting updates */
     socket.on("vote", function(message) {
         var updated_songs = message['updated']
         for(var song in updated_songs){
@@ -81,35 +113,44 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song){
             }
         }
     });
-    //Old http request based stuff
-    var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
-            $scope.queue = queue;
-            });
-    $scope.get_song = function(){
-    $scope.model
-    }
 
+    //Request the next song to be played
+    $scope.next = function() {
+        socket.emit('player-control', {'new': 'True', 'queue': $scope.queue.id});
+    };
+
+    /* Submit a vote on the vote event */
     $scope.vote = function () {
         if(this.queue.songId === undefined) {
             $scope.alert = {showAlert:true, msg: 'Select something please!', alertClass: 'warning'};
         }
-         else {
+        else {
             socket.emit('vote', {"vote_for": $scope.queue.songs[this.queue.songId].id})
             delete this.queue.songId
         };
-
     };
+
+    /* Submit a song suggestion */
     $scope.submit = function() {
-     if(this.queue.song_title === undefined || this.queue.song_url === undefined)
-     {
-        alert("Please fill out both fields")
-     }
-     else {
-    var newSong = new Song({title: this.queue.song_title, url: this.queue.song_url, votes: 0, playing: 1, queue_id: $routeParams.queueId})
-    newSong.$save()
-    $scope.queue.$get({queueId: $routeParams.queueId})
-     }
+        if(this.queue.song_title === undefined || this.queue.song_url === undefined)
+            {
+                alert("Please fill out both fields")
+            }
+            else {
+                var newSong = new Song({title: this.queue.song_title, url: this.queue.song_url, votes: 0, playing: 1, queue_id: $routeParams.queueId})
+                newSong.$save()
+                $scope.queue.$get({queueId: $routeParams.queueId})
+            }
     }
+
+    //Old http request based stuff
+    var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
+        $scope.queue = queue;
+    });
+    $scope.get_song = function(){
+        $scope.model
+    }
+
 }
 
 function loginController($scope, $location, AuthService){

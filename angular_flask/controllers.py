@@ -5,7 +5,7 @@ from flask import request, render_template, jsonify, session
 
 from flask import send_from_directory
 from flask import make_response, abort
-from flask.ext.socketio import emit
+from flask.ext.socketio import emit, join_room, leave_room
 
 from flask.ext.bcrypt import Bcrypt
 
@@ -30,6 +30,17 @@ for model_name in app.config['API_MODELS']:
 #Db session for making
 db_session = api_manager.session
 
+@socketio.on('join', namespace='/client')
+def on_join(data):
+    if data["queue"]:
+        queue = data['queue']
+        join_room(queue)
+
+@socketio.on('leave', namespace='/client')
+def on_leave(data):
+    if data["queue"]:
+        queue = data['queue']
+        leave_room(queue)
 
 @socketio.on('vote', namespace='/client')
 def handle_voting(data):
@@ -38,12 +49,37 @@ def handle_voting(data):
         if song :
             song.votes = song.votes + 1
             db_session.commit()
-            emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, broadcast=True)
+            emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, room=song.queue_id)
         else:
             #TODO: Add Error Handling
             print("song doesnt exist")
 
 
+@socketio.on('player-control', namespace='/client')
+def handle_player_change(data):
+    if data["new"]:
+        songs = Song.query.filter(Song.queue_id == int(data["queue"])).order_by(Song.votes).all()
+        print(songs)
+        dictionary = dict()
+        for song in songs:
+            dictionary[song.votes] = song
+
+        maxVotes = 0
+        for votes in dictionary:
+            if votes > maxVotes:
+                maxVotes = votes
+        emit('player-change', {'action': 'new','url': song.url}, room=song.queue_id)
+        print(song, song.title, song.votes, song.queue_id)
+        song.votes = 0
+        db_session.commit()
+        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, room=song.queue_id)
+        return;
+    elif data["stop"]:
+        return;
+    elif data["start"]:
+        return;
+    elif data["seek"]:
+        return;
 
 #TODO: Rewrite video_client handler using socketio
 def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):

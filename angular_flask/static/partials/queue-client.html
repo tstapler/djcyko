@@ -1,5 +1,13 @@
 <h1>{{ queue.title }}</h1>
+<hr>
 
+
+<youtube-video video-id="current_song" player-vars="playerVars" player="$scope.player"></youtube-video>
+<div>
+<button ng-click="next()" class="btn"> Next Song </button>
+<button ng-click="stop()" class="btn"> Stop Song </button>
+</div>
+<hr>
 
 <uib-tabset>
     <uib-tab heading="Voting" class="tab-pane active">
@@ -7,7 +15,7 @@
             <h2>Voting</h2>
             <div class="form">
                 <label class="control-label">Vote for your favorite song!</label>
-                <div class="radio" ng-repeat="song in queue.songs">
+                <div class="radio" ng-repeat="song in queue.songs | orderBy: '-votes'">
                     <label for="option{{$index}}">
                     <input type="radio" id="option{{$index}}" value={{$index}} ng-click name="option" ng-model="queue.songId">
                      {{ song.title }} - {{ song.votes }} votes</label>
