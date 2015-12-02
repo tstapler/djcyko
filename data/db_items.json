@@ -1,11 +1,13 @@
-{ "song":
+{
+   "queue":
+   [{"title": "CyKoQueue1"
+       }
+   ],
+ "song":
     [{"title": "Style",
       "url": "https://www.youtube.com/watch?v=-CmadmM5cOk",
       "votes":1,
       "playing": false,
       "queue_id":1}
-    ],
-   "queue":
-   [{"title": "CyKoQueue1"}
-   ]
+    ]
 }

@@ -1,6 +1,7 @@
 'use strict';
 
-var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices','ngRoute','ui.bootstrap','btford.socket-io'])
+var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices','ngRoute',
+ 'ui.bootstrap','btford.socket-io', 'youtube-embed'])
 .config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider

@@ -10,3 +10,4 @@ data/*.save
 *.REMOTE.*
 *.LOCAL.*
 *.orig
+env/

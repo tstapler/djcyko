@@ -1,17 +1,12 @@
 import os
 import json
 
-from geventwebsocket.handler import WebSocketHandler
-from gevent.pywsgi import WSGIServer
-from flask import Flask, request, render_template, jsonify, session
+from flask import request, render_template, jsonify, session
 
-from flask import request, Response
-from flask import url_for, redirect, send_from_directory
-from flask import send_file, make_response, abort
-from flask.ext.socketio import SocketIO, emit
+from flask import send_from_directory
+from flask import make_response, abort
+from flask.ext.socketio import emit, join_room, leave_room
 
-from flask import url_for, send_from_directory
-from flask import make_response
 from flask.ext.bcrypt import Bcrypt
 
 from angular_flask import app, socketio
@@ -20,8 +15,9 @@ from angular_flask import app, socketio
 from angular_flask.core import api_manager
 from angular_flask.models import *
 
+#Add logger to print to console
 import logging
-logging.basicConfig()
+logger = logging.basicConfig()
 
 #Create hashing functionality
 bcrypt = Bcrypt(app)
@@ -34,17 +30,60 @@ for model_name in app.config['API_MODELS']:
 #Db session for making
 db_session = api_manager.session
 
+@socketio.on('join', namespace='/client')
+def on_join(data):
+    if data["queue"]:
+        queue = data['queue']
+        join_room(queue)
+
+@socketio.on('leave', namespace='/client')
+def on_leave(data):
+    if data["queue"]:
+        queue = data['queue']
+        leave_room(queue)
+
 @socketio.on('vote', namespace='/client')
 def handle_voting(data):
     if data["vote_for"]:
-        song = db_session.query(Song).filter(Song.id==data["vote_for"]).first
-        song.id = song.id + 1
-        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]})
+        song = Song.query.filter(Song.id == int(data['vote_for'])).first()
+        if song :
+            song.votes = song.votes + 1
+            db_session.commit()
+            emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, room=song.queue_id)
+        else:
+            #TODO: Add Error Handling
+            print("song doesnt exist")
 
 
+@socketio.on('player-control', namespace='/client')
+def handle_player_change(data):
+    if "new" in data:
+        songs = Song.query.filter(Song.queue_id == int(data["queue"])).order_by(Song.votes).all()
+        print(songs)
+        dictionary = dict()
+        for song in songs:
+            dictionary[song.votes] = song
+        maxVotes = 0
+        for votes in dictionary:
+            if votes > maxVotes:
+                maxVotes = votes
+        emit('player-change', {'action': 'new','url': song.url}, room=song.queue_id)
+        print(song, song.title, song.votes, song.queue_id)
+        song.votes = 0
+        db_session.commit()
+        emit('vote', {'updated': [{'id': song.id, 'votes': song.votes}]}, room=song.queue_id)
+        return
+    elif "stop" in data:
+        emit('player-change', {'action': 'stop'}, room=data['queue'])
+        return
+    elif "start" in data:
+        emit('player-change', {'action': 'start'}, room=data['queue'])
+        return
+    elif "seek" in data:
+        return
 
-def handle_websocket(ws, url="" ):
-    index = 0
+#TODO: Rewrite video_client handler using socketio
+def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
     while True:
         f = open('ws.log', 'w')
         message = ws.receive()

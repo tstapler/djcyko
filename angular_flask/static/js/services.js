@@ -43,7 +43,11 @@ angular.module('angularFlaskServices', ['ngResource'])
     })
 
     .factory('socket', function (socketFactory){
-        return socketFactory();
+        return socketFactory({
+            prefix: '',
+            ioSocket: io.connect('http://localhost:5000/client')
+        }
+        );
     })
 
     .factory('AuthService', ['$q', '$timeout', '$http', function($q, $timeout, $http) {
