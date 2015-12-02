@@ -1,4 +1,6 @@
 install:
+	pip install scrapy
+	apt-get install libffi-dev libssl-dev libxml2-dev libxslt1-dev
 	pip install -r requirements.txt
 
 del:
