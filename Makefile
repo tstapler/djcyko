@@ -1,6 +1,8 @@
 install:
+	apt-get install python-dev -y
+	apt-get install bcrypt -y
 	pip install scrapy
-	apt-get install libffi-dev libssl-dev libxml2-dev libxslt1-dev
+	apt-get install libffi-dev libssl-dev libxml2-dev libxslt1-dev -y
 	pip install -r requirements.txt
 
 del:
