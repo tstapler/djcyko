@@ -87,29 +87,41 @@ def handle_player_change(data):
 def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
     while True:
         f = open('ws.log', 'w')
-        message = ws.receive()
+        
+	# The following action blocks
+	message = ws.receive()
         if message is None:
             break
         else:
             message = json.loads(message)
 
+	# Fetch the list of songs in the database
         songs = db_session.query(Song).all()
+
+	# Map out the most popular songs
+	# Number of votes	->	Song object
+	# Tie breaking favors the latest song observed
         dictionary = dict()
         for song in songs:
             dictionary[song.votes] = song
 
+	# Figure out which song is most popular
         maxVotes = 0
         for votes in dictionary:
             if votes > maxVotes:
                 maxVotes = votes
+
+	# Parse out the video ID
         url = dictionary[maxVotes].url.partition('v=')[2][:11]
         f.write(url)
         f.write('\n')
+
+	# Send the video ID of the most popular song to clients
         ws.send(json.dumps({'output':url}))
 
+	# Delete most popular song now that it's been pushed out to clients
         toDelete = dictionary[maxVotes]
         toDelete.votes = 0
-
         db_session.add(toDelete)
         db_session.flush()
 
