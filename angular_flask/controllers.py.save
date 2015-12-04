@@ -29,6 +29,7 @@ for model_name in app.config['API_MODELS']:
 
 #Db session for making
 db_session = api_manager.session
+/handle
 
 @socketio.on('join', namespace='/client')
 def on_join(data):
