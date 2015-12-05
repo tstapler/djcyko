@@ -184,7 +184,7 @@ function loginController($scope, $location, AuthService){
         AuthService.login($scope.loginForm.username, $scope.loginForm.password)
         // handle success
         .then(function () {
-            $location.path('/');
+            $location.path('/queue');
             $scope.disabled = false;
             $scope.loginForm = {};
         })
