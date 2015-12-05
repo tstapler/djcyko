@@ -1,14 +1,7 @@
 import os
-import json
-
 from flask import request, render_template, jsonify, session
-
-from flask import send_from_directory
-from flask import make_response, abort
+from flask import send_from_directory, make_response
 from flask.ext.socketio import emit, join_room, leave_room
-
-from flask.ext.bcrypt import Bcrypt
-
 from angular_flask import app, socketio
 
 # routing for API endpoints, generated from the models designated as API_MODELS
@@ -19,8 +12,6 @@ from angular_flask.models import *
 import logging
 logger = logging.basicConfig()
 
-#Create hashing functionality
-bcrypt = Bcrypt(app)
 
 # models for which we want to create API endpoints
 for model_name in app.config['API_MODELS']:
@@ -82,48 +73,9 @@ def handle_player_change(data):
     elif "seek" in data:
         return
 
-#TODO: Rewrite video_client handler using socketio
-def handle_websocket(ws, url="xjB7J9dOtSM", queueID = 1):
-    while True:
-        f = open('ws.log', 'w')
-        message = ws.receive()
-        if message is None:
-            break
-        else:
-            message = json.loads(message)
-
-        songs = db_session.query(Song).all()
-        dictionary = dict()
-        for song in songs:
-            dictionary[song.votes] = song
-
-        maxVotes = 0
-        for votes in dictionary:
-            if votes > maxVotes:
-                maxVotes = votes
-        url = dictionary[maxVotes].url.partition('v=')[2][:11]
-        f.write(url)
-        f.write('\n')
-        ws.send(json.dumps({'output':url}))
-
-        toDelete = dictionary[maxVotes]
-        toDelete.votes = 0
-
-        db_session.add(toDelete)
-        db_session.flush()
-
-        f.close()
-
-@app.route('/client', methods=['GET', 'POST'])
-def client():
-    return render_template('client.html')
-
 # routing for basic pages (pass routing onto the Angular app)
 @app.route('/')
-@app.route('/about')
-@app.route('/blog')
-@app.route('/songs')
-def basic_pages(**kwargs):
+def index():
     return make_response(open('angular_flask/templates/index.html').read())
 
 # routing for CRUD-style endpoints
@@ -131,20 +83,6 @@ def basic_pages(**kwargs):
 from sqlalchemy.sql import exists
 
 crud_url_models = app.config['CRUD_URL_MODELS']
-
-
-@app.route('/<model_name>/')
-@app.route('/<model_name>/<item_id>/dj')
-@app.route('/<model_name>/<item_id>/client')
-def rest_pages(model_name, item_id=None):
-    db_session = api_manager.session
-    if model_name in crud_url_models:
-        model_class = crud_url_models[model_name]
-        if item_id is None or db_session.query(exists().where(
-                model_class.id == item_id)).scalar():
-            return make_response(open(
-                'angular_flask/templates/index.html').read())
-    abort(404)
 
 #Routes for user creation and authentication
 @app.route('/api/register', methods=['POST'])

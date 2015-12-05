@@ -1,8 +1,12 @@
 from datetime import datetime
 
 from angular_flask.core import db
-from flask.ext.security import UserMixin, RoleMixin
+from flask.ext.security import UserMixin
+from flask.ext.bcrypt import Bcrypt
 from angular_flask import app
+
+#Create hashing functionality
+bcrypt = Bcrypt()
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,8 +30,10 @@ class Queue(db.Model):
     songs = db.relationship('Song', backref='queue', lazy='dynamic')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title):
+    def __init__(self, title, user_id=None):
         self.title = title
+        if user_id is not None:
+            self.user_id = user_id
 
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +65,7 @@ class User(db.Model, UserMixin):
 
     def __init__(self, username, password, active=False):
         self.username = username
-        self.password = password
+        self.password = bcrypt.generate_password_hash(password)
         self.acive = active
 
     def __repr__(self):

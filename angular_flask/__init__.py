@@ -14,14 +14,3 @@ socketio = SocketIO(app)
 import angular_flask.core
 import angular_flask.models
 import angular_flask.controllers
-
-def my_app(environ, start_response):
-    path = environ["PATH_INFO"]
-    if path == "/":
-        return app(environ, start_response)
-    elif path == "/websocket":
-        angular_flask.controllers.handle_websocket(environ["wsgi.websocket"])
-        return DebuggedApplication(app)
-    else:
-        return app(environ, start_response)
-
