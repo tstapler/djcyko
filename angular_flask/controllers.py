@@ -88,44 +88,50 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 @app.route('/api/register', methods=['POST'])
 def register():
     json_data = request.json
-    user = User(username=json_data['username'],
-                password=bcrypt.generate_password_hash(json_data['password'].encode('utf-8')))
-    #Check to see if the username already exists
-    if not db_session.query(User).filter(User.username==user.username).first():
-        db_session.add(user)
-        status = 'success'
-        db_session.commit()
+    if json_data['username'] and json_data['password']:
+        user = User(username=json_data['username'],
+                    password=json_data['password'].encode('utf-8'))
+        #TODO: Better error handling
+        #Check to see if the username already exists
+        if not User.query.filter(User.username==user.username).first():
+            db_session.add(user)
+            status = 'success'
+            db_session.commit()
+        else:
+            status = 'failure'
     else:
-        status = 'this user is already registered'
+        status = 'failure'
     return jsonify({'result': status})
 
 @app.route('/api/login', methods=['POST'])
 def login():
     json_data = request.json
     status = False
-    print(json_data['username'])
-    try:
-        user = User.query.filter_by(username=json_data['username']).first()
-        if user and bcrypt.check_password_hash(
-                user.password, json_data['password']):
-            session['logged_in'] = True
-            user.active = True
-            status = True
-            db_session.commit()
-        else:
-            status = False
-    except:
+    #TODO: Better error handling and messages
+    user = User.query.filter(User.username==json_data['username']).first()
+    if user and bcrypt.check_password_hash(
+            user.password, json_data['password']):
+        user.active = True
+        status = True
+        db_session.commit()
+    else:
         status = False
     return jsonify({'result': status})
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
     json_data = request.json
-    user = User.query.filter_by(username=json_data['username']).first()
-    user.active = False
-    db_session.commit()
-    session.pop('logged_in', None)
-    return jsonify({'result': 'success'})
+    if json_data and json_data['username']:
+        user = User.query.filter(User.username==json_data['username']).first()
+        if user:
+            user.active = False
+            db_session.commit()
+            return jsonify({'result': 'success'})
+        else:
+            return jsonify({'result': 'failure'})
+    else:
+        return jsonify({'result': 'failure'})
+
 
 # special file handlers and error handlers
 @app.route('/favicon.ico')
