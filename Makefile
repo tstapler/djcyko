@@ -8,8 +8,9 @@ new:
 	python manage.py create_db
 
 seed:
-	python manage.py seed_db --seedfile data/db_items.json
-	python manage.py seed_db --seedfile data/db_items2.json
+	python manage.py seed_db --seedfile data/users.json
+	python manage.py seed_db --seedfile data/queues.json
+	python manage.py seed_db --seedfile data/songs.json
 
 reset:
 	make del
