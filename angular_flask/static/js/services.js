@@ -53,7 +53,15 @@ angular.module('angularFlaskServices', ['ngResource'])
     .factory('AuthService', ['$q', '$timeout', '$http', function($q, $timeout, $http) {
         //create user variable
         var user = null;
-        // return available functions for use in controllers
+        
+	var statusMessage = 'lol';
+
+	function statusMessage() {
+		window.alert('hi1');
+		return statusMessage;
+	}
+
+	// return available functions for use in controllers
         function isLoggedIn() {
             if(user) {
                 return true;
@@ -122,9 +130,14 @@ angular.module('angularFlaskServices', ['ngResource'])
             $http.post('/api/register', {username: username, password: password})
             // handle success
             .success(function (data, status) {
-                if(status === 200 && data.result){
+                if(data.result == 'success'){
                     deferred.resolve();
-                } else {
+                } else if(data.result == 'unsafe') {
+		    // figure out how to send a specific message to client for this part
+		    statusMessage = 'Unsafe password';
+		    deferred.reject();
+		} else {
+		    statusMessage = 'Something went wrong!';
                     deferred.reject();
                 }
             })
@@ -137,8 +150,9 @@ angular.module('angularFlaskServices', ['ngResource'])
             return deferred.promise;
 
         }
-
+	
         return ({
+	    statusMessage: statusMessage,
             isLoggedIn: isLoggedIn,
             login: login,
             logout: logout,
