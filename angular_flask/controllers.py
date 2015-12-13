@@ -1,4 +1,5 @@
 import os
+import re # Regular Expressions
 from flask import request, render_template, jsonify, session
 from flask import send_from_directory, make_response
 from flask.ext.socketio import emit, join_room, leave_room
@@ -44,7 +45,7 @@ def handle_voting(data):
         else:
             #TODO: Add Error Handling
             print("song doesnt exist")
-
+	
 
 @socketio.on('player-control', namespace='/client')
 def handle_player_change(data):
@@ -87,21 +88,44 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 #Routes for user creation and authentication
 @app.route('/api/register', methods=['POST'])
 def register():
-    json_data = request.json
-    if json_data['username'] and json_data['password']:
-        user = User(username=json_data['username'],
-                    password=json_data['password'].encode('utf-8'))
-        #TODO: Better error handling
-        #Check to see if the username already exists
-        if not User.query.filter(User.username==user.username).first():
-            db_session.add(user)
-            status = 'success'
-            db_session.commit()
-        else:
-            status = 'failure'
-    else:
-        status = 'failure'
+    try:
+    	json_data = request.json
+	if json_data['username'] and json_data['password']:
+		status = 'failure'
+	
+		# Sanitize username/password
+		username = json_data['username']
+		password = json_data['password']
+		if isSafe(password):
+			user = User(username=json_data['username'],
+        	            password=json_data['password'].encode('utf-8'))
+		        #TODO: Better error handling
+		        #Check to see if the username already exists
+		        if not User.query.filter(User.username==user.username).first():
+		        	db_session.add(user)
+		        	status = 'success'
+		        	db_session.commit()
+		        else:
+		        	status = 'failure'
+		else:
+			status = 'unsafe'
+	else:
+        	status = 'failure'
+    except:
+	status = failure
+
     return jsonify({'result': status})
+
+def isSafe(str):
+	# For now, maxLen=100. 
+	# Will need to check if we can allow arbitrarily long passwords
+	upperCase = sum(1 for c in str if c.isupper())
+	lowerCase = sum(1 for c in str if c.islower())
+	digits = sum(1 for c in str if c.isnumeric())
+	if len(str) > 10 and len(str) < 100 and upperCase > 0 and lowerCase > 0 and digits > 0:
+		return True
+
+	return False
 
 @app.route('/api/login', methods=['POST'])
 def login():
