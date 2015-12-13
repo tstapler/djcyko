@@ -108,11 +108,11 @@ def register():
 		        else:
 		        	status = 'failure'
 		else:
-			status = 'unsafe'
+			status = 'failure'
 	else:
         	status = 'failure'
     except:
-	status = failure
+	status = 'failure'
 
     return jsonify({'result': status})
 
