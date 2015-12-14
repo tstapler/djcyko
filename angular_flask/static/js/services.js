@@ -32,7 +32,7 @@ angular.module('angularFlaskServices', ['ngResource'])
 
             }},
             save:{
-                method: 'PUT',
+                 method: 'PUT',
                 params: { queueId: '@id' },
                 headers: {
                      'Content-Type': 'application/json'
