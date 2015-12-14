@@ -108,7 +108,7 @@ def register():
 		        else:
 		        	status = 'failure'
 		else:
-			status = 'failure'
+			status = 'unsafe'
 	else:
         	status = 'failure'
     except:

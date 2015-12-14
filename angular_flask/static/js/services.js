@@ -56,8 +56,7 @@ angular.module('angularFlaskServices', ['ngResource'])
         
 	var statusMessage = 'lol';
 
-	function statusMessage() {
-		window.alert('hi1');
+	function getStatusMessage() {
 		return statusMessage;
 	}
 
@@ -133,8 +132,7 @@ angular.module('angularFlaskServices', ['ngResource'])
                 if(data.result == 'success'){
                     deferred.resolve();
                 } else if(data.result == 'unsafe') {
-		    // figure out how to send a specific message to client for this part
-		    statusMessage = 'Unsafe password';
+		    statusMessage = 'Please choose a password that contains at least 10 characters, at least 1 lowercase character, and at least 1 uppercase character';
 		    deferred.reject();
 		} else {
 		    statusMessage = 'Something went wrong!';
@@ -152,7 +150,7 @@ angular.module('angularFlaskServices', ['ngResource'])
         }
 	
         return ({
-	    statusMessage: statusMessage,
+	    getStatusMessage: getStatusMessage,
             isLoggedIn: isLoggedIn,
             login: login,
             logout: logout,
