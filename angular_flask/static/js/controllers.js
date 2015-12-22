@@ -233,11 +233,7 @@ function registerController($scope, $location, AuthService) {
         // handle error
         .catch(function () {
             $scope.error = true;
-<<<<<<< HEAD
             $scope.errorMessage = AuthService.getStatusMessage();
-=======
-            $scope.errorMessage = "Something went wrong!";
->>>>>>> parent of 1f4ab65... Password strength check update
             $scope.disabled = false;
             $scope.registerForm = {};
         });
