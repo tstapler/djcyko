@@ -129,13 +129,10 @@ angular.module('angularFlaskServices', ['ngResource'])
             $http.post('/api/register', {username: username, password: password})
             // handle success
             .success(function (data, status) {
-                if(data.result == 'success'){
+                if(data.result == 'Success'){
                     deferred.resolve();
-                } else if(data.result == 'unsafe') {
-		    statusMessage = 'Please choose a password that contains at least 10 characters, at least 1 lowercase character, and at least 1 uppercase character';
-		    deferred.reject();
 		} else {
-		    statusMessage = 'Something went wrong!';
+		    statusMessage = data.result;
                     deferred.reject();
                 }
             })

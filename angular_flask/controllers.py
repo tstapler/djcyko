@@ -91,41 +91,49 @@ def register():
     try:
     	json_data = request.json
 	if json_data['username'] and json_data['password']:
-		status = 'failure'
+		status = 'Failure'
 	
 		# Sanitize username/password
 		username = json_data['username']
 		password = json_data['password']
-		if isSafe(password):
+		status = checkPasswordSafety(password)
+		
+		if status is "Safe":
 			user = User(username=json_data['username'],
-        	            password=json_data['password'].encode('utf-8'))
+        	        	password=json_data['password'].encode('utf-8'))
 		        #TODO: Better error handling
 		        #Check to see if the username already exists
 		        if not User.query.filter(User.username==user.username).first():
 		        	db_session.add(user)
-		        	status = 'success'
+		        	status = 'Success'
 		        	db_session.commit()
 		        else:
-		        	status = 'failure'
-		else:
-			status = 'unsafe'
+		        	status = 'User already exists'
 	else:
-        	status = 'failure'
+        	status = 'Failure'
     except:
-	status = 'failure'
+	status = 'An error occurred. Please try again later.'
 
     return jsonify({'result': status})
 
-def isSafe(str):
-	# For now, maxLen=100. 
-	# Will need to check if we can allow arbitrarily long passwords
+def checkPasswordSafety(str):
 	upperCase = sum(1 for c in str if c.isupper())
-	lowerCase = sum(1 for c in str if c.islower())
-	digits = sum(1 for c in str if c.isnumeric())
-	if len(str) > 10 and len(str) < 100 and upperCase > 0 and lowerCase > 0 and digits > 0:
-		return True
+	if upperCase < 1:
+		return 'Password must have at least 1 uppercase letter'
 
-	return False
+	lowerCase = sum(1 for c in str if c.islower())
+	if lowerCase < 1:
+		return 'Password must have least 1 lowercase letter'
+
+	digits = sum(1 for c in str if c.isnumeric())
+	if digits < 1:
+		return 'Password must have at least one digit'
+	
+	if len(str) < 10 or len(str) > 100:
+		return 'Password must have no fewer than 10 characters and no more than 100 characters'
+	
+	return 'Safe'
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
