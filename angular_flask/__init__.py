@@ -5,7 +5,7 @@ from flask import render_template, send_from_directory, url_for
 from flask.ext.socketio import SocketIO
 
 app = Flask(__name__)
-app.config.from_object('angular_flask.settings.Config')
+app.config.from_object(os.getenv('CONFIG','angular_flask.settings.Config')
 app.url_map.strict_slashes = False
 
 #Initialize websocket handler
