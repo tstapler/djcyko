@@ -3,8 +3,11 @@ install:
 	apt-get install bcrypt -y
 	pip install scrapy
 	apt-get install libffi-dev libssl-dev libxml2-dev libxslt1-dev -y
-	pip install Flask-JWT
+	#Install required
 	pip install -r requirements.txt
+	#Install postgresql
+	apt-get install postgresql postgresql-contrib
+	pip install psycopg2
 
 del:
 	python manage.py delete_db
