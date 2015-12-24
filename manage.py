@@ -1,6 +1,5 @@
 import os
 import json
-import argparse
 import requests
 
 from flask.ext.script import Manager, Command, Option
@@ -11,11 +10,11 @@ manager = Manager(app)
 
 @manager.command
 def create_sample_db_entry(api_endpoint, payload):
-    url = 'http://localhost:' + os.getenv('PORT','5000') + '/' + api_endpoint
-    r = requests.post(
+    url = 'http://localhost:' + os.getenv('PORT', '5000') + '/' + api_endpoint
+    request = requests.post(
             url, data=json.dumps(payload),
             headers={'Content-Type': 'application/json'})
-    print r.text
+    print request.text
 
 @manager.command
 def create_db():
