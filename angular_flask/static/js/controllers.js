@@ -67,6 +67,11 @@ function QueueDJController($scope, $routeParams, Queue){
             });
 }
 
+function NavController($scope, $routeParams, AuthService){
+	$scope.logged_in = AuthService.isLoggedIn
+	$scope.nameIs = AuthService.nameIs
+}
+
 function QueueClientController($scope, $routeParams, socket, Queue, Song, youtubeEmbedUtils){
     //The Video id of the current song
     $scope.current_song = "xjB7J9dOtSM"
@@ -201,7 +206,7 @@ function loginController($scope, $location, AuthService){
 
 function logoutController($scope, $location, AuthService) {
 
-    $scope.logout = function () {
+    $scope.logout = (function () {
 
         console.log(AuthService.isLoggedIn());
 
@@ -211,7 +216,8 @@ function logoutController($scope, $location, AuthService) {
             $location.path('/login');
         });
 
-    };
+    });
+    
 }
 
 function registerController($scope, $location, AuthService) {

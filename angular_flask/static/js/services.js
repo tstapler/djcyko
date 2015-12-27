@@ -53,6 +53,8 @@ angular.module('angularFlaskServices', ['ngResource'])
     .factory('AuthService', ['$q', '$timeout', '$http', function($q, $timeout, $http) {
         //create user variable
         var user = null;
+	var name = '';
+        // return available functions for use in controllers
         
 	var statusMessage = 'lol';
 
@@ -79,15 +81,18 @@ angular.module('angularFlaskServices', ['ngResource'])
             // handle success
             .success(function (data, status) {
                 if(status === 200 && data.result){
+		    name = username
                     user = true;
                     deferred.resolve();
                 } else {
+		    name = ''
                     user = false;
                     deferred.reject();
                 }
             })
             // handle error
             .error(function (data) {
+	        name = ''
                 user = false;
                 deferred.reject();
             });
@@ -106,11 +111,13 @@ angular.module('angularFlaskServices', ['ngResource'])
             $http.get('/api/logout')
             // handle success
             .success(function (data) {
+		name = ''
                 user = false;
                 deferred.resolve();
             })
             // handle error
             .error(function (data) {
+		name = ''
                 user = false;
                 deferred.reject();
             });
@@ -145,13 +152,18 @@ angular.module('angularFlaskServices', ['ngResource'])
             return deferred.promise;
 
         }
-	
+
+	function nameIs() {
+		return name
+	}
+
         return ({
 	    getStatusMessage: getStatusMessage,
             isLoggedIn: isLoggedIn,
             login: login,
             logout: logout,
-            register: register
+            register: register,
+	    nameIs : nameIs
         });
     }]);
 
