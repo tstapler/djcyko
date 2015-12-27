@@ -55,6 +55,14 @@ angular.module('angularFlaskServices', ['ngResource'])
         var user = null;
 	var name = '';
         // return available functions for use in controllers
+        
+	var statusMessage = 'lol';
+
+	function getStatusMessage() {
+		return statusMessage;
+	}
+
+	// return available functions for use in controllers
         function isLoggedIn() {
             if(user) {
                 return true;
@@ -128,9 +136,10 @@ angular.module('angularFlaskServices', ['ngResource'])
             $http.post('/api/register', {username: username, password: password})
             // handle success
             .success(function (data, status) {
-                if(status === 200 && data.result){
+                if(data.result == 'Success'){
                     deferred.resolve();
-                } else {
+		} else {
+		    statusMessage = data.result;
                     deferred.reject();
                 }
             })
@@ -149,6 +158,7 @@ angular.module('angularFlaskServices', ['ngResource'])
 	}
 
         return ({
+	    getStatusMessage: getStatusMessage,
             isLoggedIn: isLoggedIn,
             login: login,
             logout: logout,

@@ -239,7 +239,7 @@ function registerController($scope, $location, AuthService) {
         // handle error
         .catch(function () {
             $scope.error = true;
-            $scope.errorMessage = "Something went wrong!";
+            $scope.errorMessage = AuthService.getStatusMessage();
             $scope.disabled = false;
             $scope.registerForm = {};
         });

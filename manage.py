@@ -1,58 +1,54 @@
 import os
 import json
-import argparse
 import requests
 
-from angular_flask.core import db
+from sqlalchemy.sql import table, column
+from sqlalchemy import *
+from alembic import op
+from alembic.operations import Operations
+from alembic.migration import MigrationContext
+from flask.ext.script import Manager, Command, Option
+from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.bcrypt import Bcrypt
 
+from angular_flask.core import db, app
 
-def create_sample_db_entry(api_endpoint, payload):
-    url = 'http://localhost:5000/' + api_endpoint
-    r = requests.post(
-        url, data=json.dumps(payload),
-        headers={'Content-Type': 'application/json'})
-    print r.text
+metadata = MetaData()
+manager = Manager(app)
 
+#Establish Alembic Operatoins object
+engine = create_engine(os.getenv('DATABASE_URL'))
+conn = engine.connect()
+ctx = MigrationContext.configure(conn)
+op = Operations(ctx)
 
+bcrypt = Bcrypt()
+
+@manager.command
 def create_db():
     db.create_all()
 
-
-def drop_db():
+@manager.command
+def delete_db():
+    db.session.close()
     db.drop_all()
 
-
-def main():
-    parser = argparse.ArgumentParser(
-        description='Manage this Flask application.')
-    parser.add_argument(
-        'command', help='the name of the command you want to run')
-    parser.add_argument(
-        '--seedfile', help='the file with data for seeding the database')
-    args = parser.parse_args()
-
-    if args.command == 'create_db':
-        create_db()
-
-        print "DB created!"
-    elif args.command == 'delete_db':
-        drop_db()
-
-        print "DB deleted!"
-    elif args.command == 'seed_db' and args.seedfile:
-        with open(args.seedfile, 'r') as f:
-            seed_data = json.loads(f.read())
-
-        for item_class in seed_data:
-            items = seed_data[item_class]
-            print items
-            for item in items:
-                print item
-                create_sample_db_entry('api/' + item_class, item)
+@manager.option('-f', '--seedfile', help='File containing json to be added to the database')
+def seed_db(seedfile):
+    with open(seedfile, 'r') as f:
+        seed_data = json.loads(f.read())
+        for table_name in seed_data:
+           if table_name == "user":
+               for number, user in enumerate(seed_data[table_name]):
+                   seed_data[table_name][number]["password"] = bcrypt.generate_password_hash(user["password"])
+           table_to_insert = Table(table_name, metadata, autoload=True, autoload_with=engine) 
+           op.bulk_insert(table_to_insert, seed_data[table_name])
 
         print "\nSample data added to database!"
-    else:
-        raise Exception('Invalid command')
+
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
+
 
 if __name__ == '__main__':
-    main()
+    manager.run()

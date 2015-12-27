@@ -1,4 +1,5 @@
 import os
+import re # Regular Expressions
 from flask import request, render_template, jsonify, session
 from flask import send_from_directory, make_response
 from flask.ext.socketio import emit, join_room, leave_room
@@ -44,7 +45,7 @@ def handle_voting(data):
         else:
             #TODO: Add Error Handling
             print("song doesnt exist")
-
+	
 
 @socketio.on('player-control', namespace='/client')
 def handle_player_change(data):
@@ -87,21 +88,52 @@ crud_url_models = app.config['CRUD_URL_MODELS']
 #Routes for user creation and authentication
 @app.route('/api/register', methods=['POST'])
 def register():
-    json_data = request.json
-    if json_data['username'] and json_data['password']:
-        user = User(username=json_data['username'],
-                    password=json_data['password'].encode('utf-8'))
-        #TODO: Better error handling
-        #Check to see if the username already exists
-        if not User.query.filter(User.username==user.username).first():
-            db_session.add(user)
-            status = 'success'
-            db_session.commit()
-        else:
-            status = 'failure'
-    else:
-        status = 'failure'
+    try:
+    	json_data = request.json
+	if json_data['username'] and json_data['password']:
+		status = 'Failure'
+	
+		# Sanitize username/password
+		username = json_data['username']
+		password = json_data['password']
+		status = checkPasswordSafety(password)
+		
+		if status is "Safe":
+			user = User(username=json_data['username'],
+        	        	password=json_data['password'].encode('utf-8'))
+		        #TODO: Better error handling
+		        #Check to see if the username already exists
+		        if not User.query.filter(User.username==user.username).first():
+		        	db_session.add(user)
+		        	status = 'Success'
+		        	db_session.commit()
+		        else:
+		        	status = 'User already exists'
+	else:
+        	status = 'Failure'
+    except:
+	status = 'An error occurred. Please try again later.'
+
     return jsonify({'result': status})
+
+def checkPasswordSafety(str):
+	upperCase = sum(1 for c in str if c.isupper())
+	if upperCase < 1:
+		return 'Password must have at least 1 uppercase letter'
+
+	lowerCase = sum(1 for c in str if c.islower())
+	if lowerCase < 1:
+		return 'Password must have least 1 lowercase letter'
+
+	digits = sum(1 for c in str if c.isnumeric())
+	if digits < 1:
+		return 'Password must have at least one digit'
+	
+	if len(str) < 10 or len(str) > 100:
+		return 'Password must have no fewer than 10 characters and no more than 100 characters'
+	
+	return 'Safe'
+
 
 @app.route('/api/login', methods=['POST'])
 def login():

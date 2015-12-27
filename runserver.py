@@ -5,7 +5,9 @@ import click
 
 @click.command()
 @click.option('--config',default="p", type=click.Choice(['p','d','t']), help='Type of Configuration')
-def run_server(config):
+@click.option('--port',default=5000, help='The Port the webserver should run on')
+def run_server(config, port):
+    print(port)
     if config == "p":
         app.config.from_object('angular_flask.settings.ProductionConfig')
     elif config == "d":
@@ -16,8 +18,7 @@ def run_server(config):
         pass
 
     monkey.patch_all()
-    socketio.run(app)
-    SocketIOServer(('',5000),app,resource="socket.io").serve_forever()
+    SocketIOServer(('',port),app,resource="socket.io").serve_forever()
 
 if __name__ == '__main__':
     run_server()
