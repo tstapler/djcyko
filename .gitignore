@@ -1,3 +1,6 @@
+.env
+migrations
+.agignore
 *.pyc
 venv
 *~
