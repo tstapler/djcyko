@@ -23,21 +23,6 @@ angular.module('angularFlaskServices', ['ngResource'])
                 method: 'GET',
                 params: { queueId: '' },
                 isArray: true
-            },
-            update:{
-                method: 'POST',
-                params: { queueId: '' },
-                headers: {
-                     'Content-Type': 'application/json'
-
-            }},
-            save:{
-                 method: 'PUT',
-                params: { queueId: '@id' },
-                headers: {
-                     'Content-Type': 'application/json'
-                },
-                data: ''
             }
         });
     })
@@ -45,7 +30,7 @@ angular.module('angularFlaskServices', ['ngResource'])
     .factory('socket', function (socketFactory){
         return socketFactory({
             prefix: '',
-            ioSocket: io.connect('http://localhost:5000/client')
+	    ioSocket: io.connect('http://localhost:5000/client')
         }
         );
     })
@@ -54,12 +39,17 @@ angular.module('angularFlaskServices', ['ngResource'])
         //create user variable
         var user = null;
 	var name = '';
+	var user_id = -1;
         // return available functions for use in controllers
         
 	var statusMessage = 'lol';
 
 	function getStatusMessage() {
 		return statusMessage;
+	}
+
+	function getUserID(){
+		return user_id;
 	}
 
 	// return available functions for use in controllers
@@ -70,6 +60,22 @@ angular.module('angularFlaskServices', ['ngResource'])
                 return false;
             }
         }
+
+	function updateUserID(){
+            var deferred = $q.defer();
+
+	    	var filters = [{name: "username", op: "eq", val: name}];
+		$http.get('api/user',{"params": { "q": {"filters": filters, "single":true}}, "content-headers": "application/json"}) 
+		.success(function (data, status) {
+			user_id = data.id;
+			deferred.resolve();
+		})
+		.error(function (data) {
+			deferred.reject();
+			user_id = -2;
+		});
+		return deferred.promise;
+	}
 
         function login(username, password) {
 
@@ -83,6 +89,7 @@ angular.module('angularFlaskServices', ['ngResource'])
                 if(status === 200 && data.result){
 		    name = username
                     user = true;
+		    updateUserID()
                     deferred.resolve();
                 } else {
 		    name = ''
@@ -102,13 +109,14 @@ angular.module('angularFlaskServices', ['ngResource'])
 
         }
 
+
         function logout() {
 
             // create a new instance of deferred
             var deferred = $q.defer();
 
             // send a get request to the server
-            $http.get('/api/logout')
+	    $http.post('/api/logout', {username: name})
             // handle success
             .success(function (data) {
 		name = ''
@@ -163,7 +171,9 @@ angular.module('angularFlaskServices', ['ngResource'])
             login: login,
             logout: logout,
             register: register,
-	    nameIs : nameIs
+	    nameIs : nameIs,
+	    getUserID: getUserID,
+	    updateUserID: updateUserID
         });
     }]);
 

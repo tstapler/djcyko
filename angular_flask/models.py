@@ -10,14 +10,13 @@ bcrypt = Bcrypt()
 
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String())
+    title = db.Column(db.String(), unique=True)
     songs = db.relationship('Song', backref='queue', lazy='dynamic')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, user_id=None):
+    def __init__(self, title, user_id):
         self.title = title
-        if user_id is not None:
-            self.user_id = user_id
+        self.user_id = user_id
 
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)

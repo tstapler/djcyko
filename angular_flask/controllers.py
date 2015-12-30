@@ -17,7 +17,7 @@ logger = logging.basicConfig()
 # models for which we want to create API endpoints
 for model_name in app.config['API_MODELS']:
     model_class = app.config['API_MODELS'][model_name]
-    api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH'])
+    api_manager.create_api(model_class, methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 
 #Db session for making
 db_session = api_manager.session

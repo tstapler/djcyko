@@ -4,8 +4,8 @@
 
 <youtube-video video-id="current_song" player-vars="playerVars" player="player"></youtube-video>
 <div>
-<button ng-click="next()" class="btn"> Next Song </button>
-<button ng-click="stop_start()" class="btn"> {{button_state}} </button>
+	<button ng-if="ownsQueue()" ng-click="next()" class="btn btn-primary"> Next Song </button>
+	<button ng-if="ownsQueue()" ng-click="stop_start()" class="btn btn-default"> {{button_state}} </button>
 </div>
 <hr>
 
@@ -17,17 +17,18 @@
                 <label class="control-label">Vote for your favorite song!</label>
                 <div class="radio" ng-repeat="song in queue.songs | orderBy: '-votes'">
                     <label for="option{{$index}}">
-                    <input type="radio" id="option{{$index}}" value={{$index}} ng-click name="option" ng-model="queue.songId">
+		    <input type="radio" id="option{{$index}}" ng-value={{song.id}} ng-click name="option" ng-model="queue.songId">
                      {{ song.title }} - {{ song.votes }} votes</label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save">Vote!</span></button>
+            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save"> Vote!</span></button>
         </form>
     </uib-tab>
     
     <uib-tab heading="Song Submission" class="tab-pane">
         <form ng-submit="submit()">
             <h2>Song Request Form</h2>
+	    <div class="form-group">
             <div class="form-group">
                 <label for="title" >Enter the song's title:</label>
                 <input type="text" id=title ng-model="queue.song_title" class="form-control">
@@ -42,4 +43,5 @@
     </uib-tab>
 </uib-tabset>
 <hr>
-<a class="btn btn-danger" ng-href="/queue/"><span class="glyphicon glyphicon-arrow-left">Back to Queues</span></a>
+<a class="btn btn-default" ng-href="/queue"><span class="glyphicon glyphicon-arrow-left"> Back to Queues</span></a>
+<a class="btn btn-danger" ng-if="ownsQueue()" ng-click="deleteQueue()">Delete Button</a>

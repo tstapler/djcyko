@@ -67,21 +67,21 @@ var AngularFlask = angular.module('AngularFlask', ['angularFlaskServices', 'ngRo
 					}
 				})
 				.when('/login', {
-					templateUrl: 'static/partials/login.html',
+					templateUrl: '/static/partials/login.html',
 					controller: loginController,
 					access: {
 						restricted: false
 					}
 				})
 				.when('/logout', {
-					template: 'static/partials/login.html',
+					template: '/static/partials/login.html',
 					controller: logoutController,
 					access: {
 						restricted: false
 					}
 				})
 				.when('/register', {
-					templateUrl: 'static/partials/register.html',
+					templateUrl: '/static/partials/register.html',
 					controller: registerController,
 					access: {
 						restricted: false
