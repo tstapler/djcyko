@@ -49,10 +49,35 @@ function SongDetailController($scope, $routeParams, Song) {
     }
 }
 
-function QueueListController($scope, Queue){
-    var queueQuery =Queue.get ({},function(queues){
-        $scope.queues = queues.objects;
+function QueueListController($scope, Queue, AuthService){
+    function sortByUser(array){
+	    var users_object = {}
+	    for (var i in array) {
+		    if(array[i].user != null){
+		    var username = array[i].user.username
+			    if(!users_object.hasOwnProperty(username)) {
+				    users_object[username] = [];
+				    users_object[username].push(array[i])
+			    }
+			    else {
+				    users_object[username].push(array[i])
+			    }
+		    }
+	    }
+	    return users_object
+    }
+    var queueQuery = Queue.get ({},function(data){
+		    $scope.queues = sortByUser(data.objects);
     });
+    $scope.user = AuthService.nameIs;
+    $scope.queue_name = "";
+    $scope.newQueue = function() {
+	    var to_add = new Queue({"title": $scope.queue_name, "user_id": AuthService.getUserID()})
+	    to_add.$save();
+	    Queue.get({}, function(data){
+		    $scope.queues = sortByUser(data.objects);
+	    });
+    };
 }
 
 function QueueDetailController($scope, $routeParams, Queue) {
@@ -67,9 +92,14 @@ function QueueDJController($scope, $routeParams, Queue){
             });
 }
 
-function QueueClientController($scope, $routeParams, socket, Queue, Song, youtubeEmbedUtils){
+function NavController($scope, $routeParams, AuthService){
+	$scope.logged_in = AuthService.isLoggedIn;
+	$scope.nameIs = AuthService.nameIs;
+}
+
+function QueueClientController($scope, $routeParams, $location, socket, Queue, Song, youtubeEmbedUtils, AuthService){
     //The Video id of the current song
-    $scope.current_song = "xjB7J9dOtSM"
+    $scope.current_song = "YQHsXMglC9A";
     $scope.player;
 
     //The control parameters for the youtube player
@@ -83,7 +113,7 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
     socket.connect;
 
     socket.on("connect", function(){
-        socket.emit('join',{"queue": $scope.queue.id});
+        socket.emit('join', {"queue": $scope.queue.id});
     });
 
     /* Control signals for the youtube player */
@@ -99,6 +129,7 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
                 $scope.player.playVideo();
                 break;
             case "seek":
+		$scope.player.loadVideoById(youtubeEmbedUtils.getIdFromURL(message["url"], message["start"]));
                 break;
         }
     });
@@ -143,7 +174,7 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
             $scope.alert = {showAlert:true, msg: 'Select something please!', alertClass: 'warning'};
         }
         else {
-            socket.emit('vote', {"vote_for": $scope.queue.songs[this.queue.songId].id})
+            socket.emit('vote', {"vote_for": this.queue.songId})
             delete this.queue.songId
         };
     };
@@ -155,7 +186,7 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
                 alert("Please fill out both fields")
             }
             else {
-                var newSong = new Song({title: this.queue.song_title, url: this.queue.song_url, votes: 0, playing: 1, queue_id: $routeParams.queueId})
+                var newSong = new Song({title: this.queue.song_title, url: this.queue.song_url, votes: 0, playing: "False", queue_id: $routeParams.queueId})
                 newSong.$save()
                 $scope.queue.$get({queueId: $routeParams.queueId})
             }
@@ -165,8 +196,25 @@ function QueueClientController($scope, $routeParams, socket, Queue, Song, youtub
     var queueQuery = Queue.get({queueId: $routeParams.queueId }, function(queue){
         $scope.queue = queue;
     });
+
     $scope.get_song = function(){
         $scope.model
+    }
+
+    $scope.deleteQueue = function() {
+	    if(AuthService.getUserID() === $scope.queue.user_id)
+	    {
+	    Queue.delete({queueId: $scope.queue.id})
+	    $location.path("/queue")
+	    }
+    }
+
+    $scope.ownsQueue = function () {
+	    try {
+	    return AuthService.getUserID() === $scope.queue.user_id;
+		} catch (e) {
+	
+		}
     }
 
 }
@@ -201,7 +249,7 @@ function loginController($scope, $location, AuthService){
 
 function logoutController($scope, $location, AuthService) {
 
-    $scope.logout = function () {
+    $scope.logout = (function () {
 
         console.log(AuthService.isLoggedIn());
 
@@ -211,7 +259,9 @@ function logoutController($scope, $location, AuthService) {
             $location.path('/login');
         });
 
-    };
+    });
+    $scope.logout();
+    
 }
 
 function registerController($scope, $location, AuthService) {

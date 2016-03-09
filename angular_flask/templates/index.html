@@ -25,7 +25,7 @@
 
 </head>
 <body>
-<div role="navigation" id="header" class="navbar navbar-default">
+<div ng-controller="NavController" role="navigation" id="header" class="navbar navbar-default">
    <div class
     <div class="container-fluid">
         <button type="button" class="navbar-toggle collapsed" ng-click="isCollapsed = !isCollapsed">
@@ -41,15 +41,20 @@
                     <a href="/">Home</a>
                 </li>
                 <li>
-                    <a href="/login">Login</a>
+		    <a ng-if="!logged_in()" href="/login">Login</a>
+                    <a ng-if="logged_in()" href="/logout">Logout</a>
                 </li>
                 <li>
                     <a href="/register">Register</a>
                 </li>
+		<li ng-if="logged_in()">
+		   <p class="navbar-text"> Welcome {{nameIs()}}! </p>
+		</li>
             </ul>
         </div>
     </div>
 </div>
+
 
     <div class="container page">
         <div id="content" class="container main" ng-view>

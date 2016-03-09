@@ -1,21 +1,28 @@
 import os
 import json
-import argparse
 import requests
 
+from sqlalchemy.sql import table, column
+from sqlalchemy import *
+from alembic import op
+from alembic.operations import Operations
+from alembic.migration import MigrationContext
 from flask.ext.script import Manager, Command, Option
 from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.bcrypt import Bcrypt
 
 from angular_flask.core import db, app
+
+metadata = MetaData()
 manager = Manager(app)
 
-@manager.command
-def create_sample_db_entry(api_endpoint, payload):
-    url = 'http://localhost:' + os.getenv('PORT','5000') + '/' + api_endpoint
-    r = requests.post(
-            url, data=json.dumps(payload),
-            headers={'Content-Type': 'application/json'})
-    print r.text
+#Establish Alembic Operatoins object
+engine = create_engine(os.getenv('DATABASE_URL'))
+conn = engine.connect()
+ctx = MigrationContext.configure(conn)
+op = Operations(ctx)
+
+bcrypt = Bcrypt()
 
 @manager.command
 def create_db():
@@ -30,15 +37,14 @@ def delete_db():
 def seed_db(seedfile):
     with open(seedfile, 'r') as f:
         seed_data = json.loads(f.read())
+        for table_name in seed_data:
+           if table_name == "user":
+               for number, user in enumerate(seed_data[table_name]):
+                   seed_data[table_name][number]["password"] = bcrypt.generate_password_hash(user["password"])
+           table_to_insert = Table(table_name, metadata, autoload=True, autoload_with=engine) 
+           op.bulk_insert(table_to_insert, seed_data[table_name])
 
-    for item_class in seed_data:
-        items = seed_data[item_class]
-        print items
-        for item in items:
-            print item
-            create_sample_db_entry('api/' + item_class, item)
-
-    print "\nSample data added to database!"
+        print "\nSample data added to database!"
 
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
